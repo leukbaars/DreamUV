@@ -39,7 +39,7 @@ class BRM_UVTranslate(bpy.types.Operator):
     """Translate UVs in the 3D Viewport"""
     bl_idname = "mesh.brm_uvtranslate"
     bl_label = "BRM_UVTranslate"
-    bl_options = {"GRAB_CURSOR","UNDO"}
+    bl_options = {"GRAB_CURSOR","UNDO","BLOCKING"}
 
     first_mouse_x = None
     first_value = None
@@ -174,7 +174,7 @@ class BRM_UVScale(bpy.types.Operator):
     """Scale UVs in the 3D Viewport"""
     bl_idname = "mesh.brm_uvscale"
     bl_label = "BRM_UVScale"
-    bl_options = {"GRAB_CURSOR","UNDO"}
+    bl_options = {"GRAB_CURSOR","UNDO","BLOCKING"}
 
     first_mouse_x = None
     first_value = None
@@ -352,7 +352,7 @@ class BRM_UVRotate(bpy.types.Operator):
     """Rotate UVs in the 3D Viewport"""
     bl_idname = "mesh.brm_uvrotate"
     bl_label = "BRM_UVRotate"
-    bl_options = {"GRAB_CURSOR","UNDO"}
+    bl_options = {"GRAB_CURSOR","UNDO","BLOCKING"}
 
     first_mouse_x = None
     first_value = None
@@ -363,6 +363,8 @@ class BRM_UVRotate(bpy.types.Operator):
     xcenter=0
     ycenter=0
     
+    startdelta=0
+    
     def invoke(self, context, event):
         
         #object->edit switch seems to "lock" the data. Ugly but hey it works 
@@ -370,8 +372,16 @@ class BRM_UVRotate(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='EDIT')
         
         if context.object:
-            self.first_mouse_x = event.mouse_x-50 #slight offset to not make it flip out - feels better
-            self.first_mouse_y = event.mouse_y
+            #self.first_mouse_x = event.mouse_x
+            #self.first_mouse_y = event.mouse_y
+            
+            #test: set rotation center to viewport center for now
+            #test: possibly change this to selection center?
+            self.first_mouse_x = (bpy.context.region.width/2)+bpy.context.region.x
+            self.first_mouse_y = (bpy.context.region.height/2)+bpy.context.region.y
+            
+            #get neutral angle from start location
+            self.startdelta=math.atan2(event.mouse_y-self.first_mouse_y,event.mouse_x-self.first_mouse_x)
             
             self.mesh = bpy.context.object.data
             self.bm = bmesh.from_edit_mesh(self.mesh)
@@ -424,7 +434,12 @@ class BRM_UVRotate(bpy.types.Operator):
             
             #get angle of cursor from start pos in radians
             delta = -math.atan2(event.mouse_y-self.first_mouse_y,event.mouse_x-self.first_mouse_x)
+            #neutralize angle for mouse start position
+            delta+=self.startdelta
             
+            print(event.mouse_x)
+            vcenterx = (bpy.context.region.width/2)+bpy.context.region.x
+            print(vcenterx)
             #step rotation
             if event.ctrl and not event.shift: 
                 #PI/4=0.78539816339
