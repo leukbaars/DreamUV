@@ -1,5 +1,4 @@
-# Blender
-BRM UV Tools
+# BRM UV Tools
 
 This script will add the ability to translate, scale and rotate UV coordinates directly in the 3D Viewport. It should be very useful for 3D artists who find themselves working often with tiling textures that don't require a clean UV layout. Level editing packages such as hammer commonly allow you to edit UV coordinates without a 2D uv editor, and this replicates this type of functionality in Blender. I'm sure there are many other uses too.
 
