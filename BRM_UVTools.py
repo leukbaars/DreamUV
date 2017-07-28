@@ -1,12 +1,16 @@
 #this script is dedicated to the public domain under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
 #do whatever you want with it! -Bram
 
+#   TODO
+#-precision mode for rotation
+#-draw on screen handles that fit with Blender's transform tools
+
 bl_info = {
     "name": "BRM UV Tools",
     "category": "3D View",
     "author": "Bram Eulaers",
     "description": "Edit selected faces'UVs directly inside the 3D Viewport. WIP. Check for updates @leukbaars",
-    "version": (0, 4)
+    "version": (0, 6)
 }
 
 import bpy
@@ -54,11 +58,18 @@ class BRM_UVTranslate(bpy.types.Operator):
     xlock=False
     ylock=False
     
+    stateswitch = False
+    mousetestx=False
+    constrainttest = False
+    
     def invoke(self, context, event):
         
         self.shiftreset = False
         self.xlock=False
         self.ylock=False
+        self.constrainttest = False
+        self.stateswitch = False
+        self.mousetestx=False
         
         #object->edit switch seems to "lock" the data. Ugly but hey it works 
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -87,19 +98,50 @@ class BRM_UVTranslate(bpy.types.Operator):
         else:
             self.report({'WARNING'}, "No active object")
             return {'CANCELLED'}
-    
+        
     def modal(self, context, event):
         
+        #setup constraints first   
         if event.type == 'X':
+            self.stateswitch=True
             self.xlock=False
             self.ylock=True
         if event.type == 'Y':
+            self.stateswitch=True
             self.xlock=True
             self.ylock=False
-            
+        
+        #test is middle mouse held down
+        if event.type == 'MIDDLEMOUSE' and event.value == 'PRESS':
+            self.constrainttest = True
+        if event.type == 'MIDDLEMOUSE' and event.value == 'RELEASE':
+            self.constrainttest = False
+        
+        #test if mouse is in the right quadrant for X or Y movement
+        if self.constrainttest:
+            mouseangle=math.atan2(event.mouse_y-self.first_mouse_y,event.mouse_x-self.first_mouse_x)
+            mousetestx=False
+            if (mouseangle < 0.785 and mouseangle > -0.785) or (mouseangle > 2.355 or mouseangle < -2.355): 
+               mousetestx=True           
+            if mousetestx:
+                self.xlock=False
+                self.ylock=True
+            else:
+                self.xlock=True
+                self.ylock=False 
+            if mousetestx is not self.mousetestx:
+                self.stateswitch=True
+                self.mousetestx = not self.mousetestx
+       
+        if self.stateswitch:
+            self.stateswitch=False
+            #reset to start editing from start position
+            for i,face in enumerate(self.bm.faces):
+                if face.select:
+                    for o,vert in enumerate(face.loops):
+                        vert[self.bm.loops.layers.uv.active].uv = self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv     
+                         
         if event.type == 'MOUSEMOVE':
-            
-            
             self.delta=((self.first_mouse_x - event.mouse_x),(self.first_mouse_y - event.mouse_y))
             self.delta = mathutils.Vector(self.delta)*0.001
             
@@ -189,6 +231,7 @@ class BRM_UVScale(bpy.types.Operator):
     
     xlock=False
     ylock=False
+    constrainttest = False
     
     s1=3
     s2=.5
@@ -202,6 +245,7 @@ class BRM_UVScale(bpy.types.Operator):
         self.shiftreset = False
         self.xlock=False
         self.ylock=False
+        self.constrainttest = False
         
         if context.object:
             self.first_mouse_x = event.mouse_x+1000/self.s1
@@ -262,6 +306,26 @@ class BRM_UVScale(bpy.types.Operator):
         if event.type == 'Y':
             self.xlock=True
             self.ylock=False
+        
+        #test is middle mouse held down
+        if event.type == 'MIDDLEMOUSE' and event.value == 'PRESS':
+            self.constrainttest = True
+        if event.type == 'MIDDLEMOUSE' and event.value == 'RELEASE':
+            self.constrainttest = False
+        
+        #test if mouse is in the right quadrant for X or Y movement
+        if self.constrainttest:
+            mouseangle=math.atan2(event.mouse_y-self.first_mouse_y,event.mouse_x-self.first_mouse_x)
+            mousetestx=False
+            if (mouseangle < 0.785 and mouseangle > -0.785) or (mouseangle > 2.355 or mouseangle < -2.355): 
+               mousetestx=True           
+            if mousetestx:
+                self.xlock=True
+                self.ylock=False
+            else:
+                self.xlock=False
+                self.ylock=True 
+        
         
         if event.type == 'MOUSEMOVE':
             
