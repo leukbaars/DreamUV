@@ -8,9 +8,11 @@ once activated, you can find BRM UVTools in the tools panel when in edit mode, u
 
 I highly recommend creating a keyboard shortcut for each tool. You can right click the button and add a shortcut easily.
 
-some keyboard combos can be used while running the tool:
+some keyboard and mouse combos can be used while running the tool. The have been set up to work similarly to the default Blender transform tools:
+
 - X: constrain translate/scale to x-axis
 - Y: constrain translate/scale to y-axis
+- MIDDLE MOUSE: hold and drag along the x or y axis to constrain the tool to that axis. Release to lock the constraint. 
 - SHIFT: precision mode
 - CTRL: stepped mode
 - CTRL+SHIFT: stepped mode with smaller intervals
