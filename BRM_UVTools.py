@@ -1,9 +1,9 @@
-#this script is dedicated to the public domain under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
-#do whatever you want with it! -Bram
+# this script is dedicated to the public domain under CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
+# do whatever you want with it! -Bram
 
 #   TODO
-#-precision mode for rotation
-#-draw on screen handles that fit with Blender's transform tools
+# -precision mode for rotation
+# -draw on screen handles that fit with Blender's transform tools
 
 bl_info = {
     "name": "BRM UV Tools",
@@ -38,12 +38,11 @@ class BRM_UVPanel(bpy.types.Panel):
 
 
 
-     
 class BRM_UVTranslate(bpy.types.Operator):
     """Translate UVs in the 3D Viewport"""
     bl_idname = "mesh.brm_uvtranslate"
     bl_label = "BRM_UVTranslate"
-    bl_options = {"GRAB_CURSOR","UNDO","BLOCKING"}
+    bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
     first_mouse_x = None
     first_value = None
