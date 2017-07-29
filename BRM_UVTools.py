@@ -19,6 +19,38 @@ import math
 import mathutils
 
 
+class BRM_Preferences(bpy.types.AddonPreferences):
+    bl_idname = __name__
+
+    sensitivity = bpy.props.FloatProperty(
+        name="Sensitivity",
+        description="Mouse sensitivity for 3D view UV operations",
+        default=0.001,
+        min=0.0001,
+        max=0.1
+    )
+
+    pixel_sensitivity = bpy.props.FloatProperty(
+        name="Pixel Sensitivity",
+        description="Mouse sensitivity for 3D view UV operations with pixel snap",
+        default=0.1,
+        min=0.001,
+        max=1
+    )
+
+    pixel_snap = bpy.props.BoolProperty(
+        name="UV Pixel Snap",
+        description="Snap translate to UV pixels when possible",
+        default=False
+    )
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "sensitivity", text="Mouse Sensitivity")
+        layout.prop(self, "pixel_sensitivity", text="Pixel snap mouse sensitivity")
+        layout.prop(self, "pixel_snap", text="Pixel snap mode")
+
+
 class BRM_UVPanel(bpy.types.Panel):
     """UV Tools Panel Test!"""
     bl_label = "BRM UV Tools"
@@ -536,12 +568,12 @@ class BRM_UVRotate(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
 
-
 def register():
     bpy.utils.register_class(BRM_UVPanel)
     bpy.utils.register_class(BRM_UVTranslate)
     bpy.utils.register_class(BRM_UVScale)
     bpy.utils.register_class(BRM_UVRotate)
+    bpy.utils.register_class(BRM_Preferences)
 
 
 def unregister():
@@ -549,6 +581,8 @@ def unregister():
     bpy.utils.unregister_class(BRM_UVTranslate)
     bpy.utils.unregister_class(BRM_UVScale)
     bpy.utils.unregister_class(BRM_UVRotate)
-        
+    bpy.utils.unregister_class(BRM_Preferences)
+
+
 if __name__ == "__main__":
     register()
