@@ -82,6 +82,100 @@ class BRM_UVPanel(bpy.types.Panel):
         layout.prop(addon_prefs, "view_orientation")
 
 
+def get_face_pixel_step(context, face):
+    """
+    Finds the UV space amount for one pixel of a face, if it is textured
+    :param context:
+    :param face:
+    :return: Vector of the pixel translation, None if face is not textured
+    """
+    # Try to get the material being applied to the face
+    slot_len = len(context.object.material_slots)
+    if face.material_index < 0 or face.material_index >= slot_len:
+        return None
+    material = context.object.material_slots[face.material_index].material
+    if material is None:
+        return None
+    # Try to get the texture the material is using
+    target_img = None
+    for texture_slot in material.texture_slots:
+        if texture_slot is None:
+            continue
+        if texture_slot.texture is None:
+            continue
+        if texture_slot.texture.type == 'NONE':
+            continue
+        if texture_slot.texture.image is None:
+            continue
+        if texture_slot.texture.type == 'IMAGE':
+            target_img = texture_slot.texture.image
+            break
+    if target_img is None:
+        return None
+    # With the texture in hand, save the UV step for one pixel movement
+    pixel_step = mathutils.Vector((1 / target_img.size[0], 1 / target_img.size[1]))
+    return pixel_step
+
+
+def get_face_uv_axis(face, uv_layer, world_matrix, view_up_vector, view_right_vector):
+    """
+    Find the UV translation axis by matching the face edges to view up and right vectors
+    :param face:
+    :param uv_layer:
+    :param world_matrix:
+    :param view_up_vector:
+    :param view_right_vector:
+    :return:
+    """
+    uv_x = None
+    uv_y = None
+    closest_up = float('inf')
+    closest_right = float('inf')
+    for o, loop in enumerate(face.loops, 1):
+        prev_loop = loop.link_loop_prev
+
+        # Calculate the edge in world space, so matches view up and right vectors
+        edge_vec = (world_matrix * loop.vert.co) - (world_matrix * prev_loop.vert.co)
+        edge_vec.normalize()
+        # Calculate difference in UV
+        uv_vec = loop[uv_layer].uv - prev_loop[uv_layer].uv
+        dot_up = edge_vec.dot(view_up_vector)
+        dot_right = edge_vec.dot(view_right_vector)
+        flat_up = abs(1.0 - dot_up)
+        flat_right = abs(1.0 - dot_right)
+
+        if flat_up < closest_up:
+            # If dot up is negative, reverse UV vector
+            if dot_up < 0:
+                uv_vec *= -1
+            # Bigger axis is chosen as the vector
+            if abs(uv_vec.y) > abs(uv_vec.x):
+                # Lazy normalization, basically
+                uv_y = Vector((0, 1 if uv_vec.y > 0 else -1))
+            else:
+                uv_y = Vector((1 if uv_vec.x > 0 else -1, 0))
+
+            closest_up = flat_up
+
+        if flat_right < closest_right:
+            if dot_right < 0:
+                uv_vec *= -1
+            # Bigger axis is chosen as the vector
+            if abs(uv_vec.y) > abs(uv_vec.x):
+                uv_x = Vector((0, 1 if uv_vec.y > 0 else -1))
+            else:
+                uv_x = Vector((1 if uv_vec.x > 0 else -1, 0))
+
+            closest_right = flat_right
+
+    if uv_x is None or uv_y is None:
+        return None
+    # Fail safe, to make sure a weird parallel axis wasn't constructed
+    if abs(uv_x.dot(uv_y)) > 0.7:
+        return None
+    return uv_x, uv_y
+
+
 class BRM_UVTranslate(bpy.types.Operator):
     """Translate UVs in the 3D Viewport"""
     bl_idname = "mesh.brm_uvtranslate"
