@@ -96,6 +96,10 @@ class BRM_UVTranslate(bpy.types.Operator):
     mousetestx=False
     constrainttest = False
     
+
+    do_pixel_snap = None
+    pixel_steps = None
+
     def invoke(self, context, event):
         
         self.shiftreset = False
@@ -106,6 +110,12 @@ class BRM_UVTranslate(bpy.types.Operator):
         self.mousetestx=False
         
         #object->edit switch seems to "lock" the data. Ugly but hey it works 
+        # Store per face pixel steps here
+        self.pixel_steps = None
+        # Get refrerence to addon preference to get snap setting
+        addon_prefs = context.user_preferences.addons[__name__].preferences
+        self.do_pixel_snap = addon_prefs.pixel_snap
+
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.mode_set(mode='EDIT')
         
