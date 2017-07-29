@@ -97,6 +97,9 @@ class BRM_UVTranslate(bpy.types.Operator):
     constrainttest = False
     
 
+    sensitivity = 0.001
+    sensitivity_pixel = 0.1
+
     do_pixel_snap = None
     pixel_steps = None
 
@@ -138,6 +141,8 @@ class BRM_UVTranslate(bpy.types.Operator):
             # Get refrerence to addon preference to get snap setting
             addon_prefs = context.user_preferences.addons[__name__].preferences
             self.do_pixel_snap = addon_prefs.pixel_snap
+            self.sensitivity = addon_prefs.sensitivity
+            self.sensitivity_pixel = addon_prefs.pixel_sensitivity
 
             # Find pixel steps per face here to look up in future translations
             self.pixel_steps = {}
@@ -221,9 +226,10 @@ class BRM_UVTranslate(bpy.types.Operator):
                         vert[self.bm.loops.layers.uv.active].uv = self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv     
                          
         if event.type == 'MOUSEMOVE':
-            self.delta=((self.first_mouse_x - event.mouse_x),(self.first_mouse_y - event.mouse_y))
-            self.delta = mathutils.Vector(self.delta)*0.001
-            
+            self.delta = ((self.first_mouse_x - event.mouse_x), (self.first_mouse_y - event.mouse_y))
+
+            delta_sensitivity = self.sensitivity_pixel if not self.do_pixel_snap else self.sensitivity_pixel
+            self.delta = mathutils.Vector(self.delta) * delta_sensitivity
             if event.shift and not event.ctrl:
                 self.delta*=.1
                 #reset origin position to shift into precision mode
