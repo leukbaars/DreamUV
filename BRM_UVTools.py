@@ -255,35 +255,31 @@ class BRM_UVTranslate(bpy.types.Operator):
             self.sensitivity = addon_prefs.sensitivity
             self.sensitivity_pixel = addon_prefs.pixel_sensitivity
 
-            # Find pixel steps per face here to look up in future translations
+            # Precalculate data before going into modal
             self.pixel_steps = {}
+            self.face_axis = {}
+            # Variables for calculating UV axis
+            world_matrix = context.object.matrix_world
+            rv3d = context.region_data
+            view_up_vector = rv3d.view_rotation * Vector((0.0, 1.0, 0.0))
+            view_right_vector = rv3d.view_rotation * Vector((1.0, 0.0, 0.0))
+            uv_layer = self.bm.loops.layers.uv.active
             for i, face in enumerate(self.bm.faces):
-                if face.select:
-                    # Try to get the material being applied to the selected face
-                    if face.material_index is -1:
-                        continue
-                    material = context.object.material_slots[face.material_index].material
-                    if material is None:
-                        continue
-                    # Try to get the texture the material is using
-                    target_img = None
-                    for texture_slot in material.texture_slots:
-                        if texture_slot is None:
-                            continue
-                        if texture_slot.texture is None:
-                            continue
-                        if texture_slot.texture.type == 'NONE':
-                            continue
-                        if texture_slot.texture.image is None:
-                            continue
-                        if texture_slot.texture.type == 'IMAGE':
-                            target_img = texture_slot.texture.image
-                            break
-                    if target_img is None:
-                        continue
-                    # With the texture in hand, save the UV step for one pixel movement
-                    step = mathutils.Vector((1 / target_img.size[0], 1 / target_img.size[1]))
-                    self.pixel_steps[face.index] = step
+                if face.select is False:
+                    continue
+
+                # Find pixel steps per face here to look up in future translations
+                if self.do_pixel_snap:
+                    pixel_step = get_face_pixel_step(context, face)
+                    if pixel_step is not None:
+                        self.pixel_steps[face.index] = pixel_step
+
+                # Loop through the edges of the face, to find the one
+                # that most closely matches view up and view right
+                if self.do_view_orientation:
+                    face_axis = get_face_uv_axis(face, uv_layer, world_matrix, view_up_vector, view_right_vector)
+                    if face_axis is not None:
+                        self.face_axis[face.index] = face_axis
 
             context.window_manager.modal_handler_add(self)
             return {'RUNNING_MODAL'}
