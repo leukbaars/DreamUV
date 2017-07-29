@@ -68,6 +68,9 @@ class BRM_UVPanel(bpy.types.Panel):
         col.operator("mesh.brm_uvscale", text="Scale")
         col.operator("mesh.brm_uvrotate", text="Rotate")
 
+        addon_prefs = context.user_preferences.addons[__name__].preferences
+        layout.separator()
+        layout.prop(addon_prefs, "pixel_snap")
 
 
 class BRM_UVTranslate(bpy.types.Operator):
