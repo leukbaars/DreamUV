@@ -17,13 +17,14 @@ import bpy
 import bmesh
 import math
 import mathutils
+from mathutils import Vector
 
 
 class BRM_Preferences(bpy.types.AddonPreferences):
     bl_idname = __name__
 
     sensitivity = bpy.props.FloatProperty(
-        name="Sensitivity",
+        name="Mouse sensitivity",
         description="Mouse sensitivity for 3D view UV operations",
         default=0.001,
         min=0.0001,
@@ -31,11 +32,17 @@ class BRM_Preferences(bpy.types.AddonPreferences):
     )
 
     pixel_sensitivity = bpy.props.FloatProperty(
-        name="Pixel Sensitivity",
+        name="Pixel snap mouse sensitivity",
         description="Mouse sensitivity for 3D view UV operations with pixel snap",
         default=0.1,
         min=0.01,
         max=1
+    )
+
+    view_orientation = bpy.props.BoolProperty(
+        name="View Orientation",
+        description="Try to translate UVs according to viewport orientation",
+        default=False
     )
 
     pixel_snap = bpy.props.BoolProperty(
@@ -46,9 +53,10 @@ class BRM_Preferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        layout.prop(self, "sensitivity", text="Mouse Sensitivity")
-        layout.prop(self, "pixel_sensitivity", text="Pixel snap mouse sensitivity")
-        layout.prop(self, "pixel_snap", text="Pixel snap mode")
+        layout.prop(self, "sensitivity")
+        layout.prop(self, "pixel_sensitivity")
+        layout.prop(self, "pixel_snap")
+        layout.prop(self, "view_orientation")
 
 
 class BRM_UVPanel(bpy.types.Panel):
@@ -71,6 +79,7 @@ class BRM_UVPanel(bpy.types.Panel):
         addon_prefs = context.user_preferences.addons[__name__].preferences
         layout.separator()
         layout.prop(addon_prefs, "pixel_snap")
+        layout.prop(addon_prefs, "view_orientation")
 
 
 class BRM_UVTranslate(bpy.types.Operator):
