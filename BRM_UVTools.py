@@ -202,8 +202,11 @@ class BRM_UVTranslate(bpy.types.Operator):
     sensitivity = 0.001
     sensitivity_pixel = 0.1
 
-    do_pixel_snap = None
+    do_pixel_snap = False
     pixel_steps = None
+
+    do_view_orientation = False
+    face_axis = None
 
     def invoke(self, context, event):
         if context.space_data.type != 'VIEW_3D':
@@ -219,6 +222,9 @@ class BRM_UVTranslate(bpy.types.Operator):
 
         self.pixel_steps = None
         self.do_pixel_snap = False
+
+        self.do_view_orientation = False
+        self.face_axis = None
 
         # object->edit switch seems to "lock" the data. Ugly but hey it works
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -245,6 +251,7 @@ class BRM_UVTranslate(bpy.types.Operator):
             # Get refrerence to addon preference to get snap setting
             addon_prefs = context.user_preferences.addons[__name__].preferences
             self.do_pixel_snap = addon_prefs.pixel_snap
+            self.do_view_orientation = addon_prefs.view_orientation
             self.sensitivity = addon_prefs.sensitivity
             self.sensitivity_pixel = addon_prefs.pixel_sensitivity
 
