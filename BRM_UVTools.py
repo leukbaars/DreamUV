@@ -112,9 +112,7 @@ class BRM_UVTranslate(bpy.types.Operator):
         #object->edit switch seems to "lock" the data. Ugly but hey it works 
         # Store per face pixel steps here
         self.pixel_steps = None
-        # Get refrerence to addon preference to get snap setting
-        addon_prefs = context.user_preferences.addons[__name__].preferences
-        self.do_pixel_snap = addon_prefs.pixel_snap
+        self.do_pixel_snap = False
 
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.mode_set(mode='EDIT')
@@ -136,7 +134,44 @@ class BRM_UVTranslate(bpy.types.Operator):
             self.bm.faces.ensure_lookup_table()
             self.bm2.faces.ensure_lookup_table()
             self.bm_orig.faces.ensure_lookup_table()
-            
+
+            # Get refrerence to addon preference to get snap setting
+            addon_prefs = context.user_preferences.addons[__name__].preferences
+            self.do_pixel_snap = addon_prefs.pixel_snap
+
+            # Find pixel steps per face here to look up in future translations
+            self.pixel_steps = {}
+            for i, face in enumerate(self.bm.faces):
+                if face.select:
+                    # Try to get the material being applied to the selected face
+                    if face.material_index is -1:
+                        continue
+                    material = context.object.material_slots[face.material_index].material
+                    if material is None:
+                        continue
+                    # Try to get the texture the material is using
+                    target_img = None
+                    for texture_slot in material.texture_slots:
+                        if texture_slot is None:
+                            continue
+                        if texture_slot.texture is None:
+                            continue
+                        if texture_slot.texture.type == 'NONE':
+                            continue
+                        if texture_slot.texture.image is None:
+                            continue
+                        if texture_slot.texture.type == 'IMAGE':
+                            target_img = texture_slot.texture.image
+                            # Cannot use the texture slot image reference directly
+                            # Have to get it through bpy.data.images to be able to use with BGL
+                            # target_img = bpy.data.images.get(texture_slot.texture.image.name)
+                            break
+                    if target_img is None:
+                        continue
+                    # With the texture in hand, save the UV step for one pixel movement
+                    step = mathutils.Vector((1 / target_img.size[0], 1 / target_img.size[1]))
+                    self.pixel_steps[face.index] = step
+
             context.window_manager.modal_handler_add(self)
             return {'RUNNING_MODAL'}
         else:
