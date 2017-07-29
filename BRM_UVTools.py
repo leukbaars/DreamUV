@@ -385,13 +385,22 @@ class BRM_UVTranslate(bpy.types.Operator):
                         local_delta.x *= pixel_step.x
                         local_delta.y *= pixel_step.y
 
+                    uv_x_axis = Vector((1.0, 0.0))
+                    uv_y_axis = Vector((0.0, 1.0))
+
+                    if self.do_view_orientation and face.index in self.face_axis.keys():
+                        uv_x_axis = self.face_axis[face.index][0]
+                        uv_y_axis = self.face_axis[face.index][1]
+
+                    if self.xlock:
+                        uv_x_axis = Vector((0, 0))
+                    if self.ylock:
+                        uv_y_axis = Vector((0, 0))
+
                     for o, vert in enumerate(face.loops):
-                        if not self.xlock:
-                            vert[self.bm.loops.layers.uv.active].uv.x = self.bm2.faces[i].loops[o][
-                                                                            self.bm2.loops.layers.uv.active].uv.x + local_delta.x
-                        if not self.ylock:
-                            vert[self.bm.loops.layers.uv.active].uv.y = self.bm2.faces[i].loops[o][
-                                                                            self.bm2.loops.layers.uv.active].uv.y + local_delta.y
+                        origin_uv = self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv
+                        uv_offset = local_delta.x * uv_x_axis + local_delta.y * uv_y_axis
+                        vert[self.bm.loops.layers.uv.active].uv = origin_uv + uv_offset
 
             # update mesh
             bmesh.update_edit_mesh(self.mesh, False, False)
