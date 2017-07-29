@@ -230,6 +230,11 @@ class BRM_UVTranslate(bpy.types.Operator):
 
             delta_sensitivity = self.sensitivity_pixel if not self.do_pixel_snap else self.sensitivity_pixel
             self.delta = mathutils.Vector(self.delta) * delta_sensitivity
+
+            if self.do_pixel_snap:
+                self.delta.x = int(round(self.delta.x))
+                self.delta.y = int(round(self.delta.y))
+
             if event.shift and not event.ctrl:
                 self.delta*=.1
                 #reset origin position to shift into precision mode
@@ -264,16 +269,24 @@ class BRM_UVTranslate(bpy.types.Operator):
                 self.delta.x=math.floor(self.delta.x*16)/16
                 self.delta.y=math.floor(self.delta.y*16)/16
 
-            #loop through every selected face and move the uv's using original uv as reference
-            for i,face in enumerate(self.bm.faces):
+            # loop through every selected face and move the uv's using original uv as reference
+            for i, face in enumerate(self.bm.faces):
                 if face.select:
-                    for o,vert in enumerate(face.loops):
+                    local_delta = self.delta.copy()
+                    if self.do_pixel_snap and face.index in self.pixel_steps.keys():
+                        pixel_step = self.pixel_steps[face.index]
+                        local_delta.x *= pixel_step.x
+                        local_delta.y *= pixel_step.y
+
+                    for o, vert in enumerate(face.loops):
                         if not self.xlock:
-                            vert[self.bm.loops.layers.uv.active].uv.x = self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv.x + self.delta.x
+                            vert[self.bm.loops.layers.uv.active].uv.x = self.bm2.faces[i].loops[o][
+                                                                            self.bm2.loops.layers.uv.active].uv.x + local_delta.x
                         if not self.ylock:
-                            vert[self.bm.loops.layers.uv.active].uv.y = self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv.y + self.delta.y
-            
-            #update mesh
+                            vert[self.bm.loops.layers.uv.active].uv.y = self.bm2.faces[i].loops[o][
+                                                                            self.bm2.loops.layers.uv.active].uv.y + local_delta.y
+
+            # update mesh
             bmesh.update_edit_mesh(self.mesh, False, False)
 
         elif event.type == 'LEFTMOUSE':
