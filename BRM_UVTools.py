@@ -404,6 +404,7 @@ class BRM_UVTranslate(bpy.types.Operator):
             # finish up and make sure changes are locked in place
             bpy.ops.object.mode_set(mode='OBJECT')
             bpy.ops.object.mode_set(mode='EDIT')
+            self.cleanup()
             return {'FINISHED'}
 
         elif event.type in {'RIGHTMOUSE', 'ESC'}:
@@ -415,9 +416,14 @@ class BRM_UVTranslate(bpy.types.Operator):
                             self.bm_orig.loops.layers.uv.active].uv
             # update mesh
             bmesh.update_edit_mesh(self.mesh, False, False)
+            self.cleanup()
             return {'CANCELLED'}
 
         return {'RUNNING_MODAL'}
+
+    def cleanup(self):
+        self.pixel_steps = None
+        self.face_axis = None
 
 
 class BRM_UVScale(bpy.types.Operator):
