@@ -206,6 +206,9 @@ class BRM_UVTranslate(bpy.types.Operator):
     pixel_steps = None
 
     def invoke(self, context, event):
+        if context.space_data.type != 'VIEW_3D':
+            self.report({'WARNING'}, "Active space must be a View3d: {0}".format(context.space_data.type))
+            return {'CANCELLED'}
 
         self.shiftreset = False
         self.xlock = False
