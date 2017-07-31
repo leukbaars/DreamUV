@@ -54,18 +54,19 @@ class BRM_UVMenu(bpy.types.Menu):
 
 
 def uv_menu_func(self, context):
-    if prefs().individualorsubmenu == "SUBMENU":
-        self.layout.menu("BRM_UVMenu")
-    else:
-        layout = self.layout
+    if prefs().adduvmenu:
+        if prefs().individualorsubmenu == "SUBMENU":
+            self.layout.menu("BRM_UVMenu")
+        else:
+            layout = self.layout
 
-        col = layout.column()
-        col.operator_context = 'INVOKE_DEFAULT'
-        col.operator("brm.uvtranslate", text="BRM UVTranslate")
-        col.operator("brm.uvrotate", text="BRM UVRotate")
-        col.operator("brm.uvscale", text="BRM UVScale")
+            col = layout.column()
+            col.operator_context = 'INVOKE_DEFAULT'
+            col.operator("brm.uvtranslate", text="BRM UVTranslate")
+            col.operator("brm.uvrotate", text="BRM UVRotate")
+            col.operator("brm.uvscale", text="BRM UVScale")
 
-    self.layout.separator()
+        self.layout.separator()
 
 
 def prefs():
