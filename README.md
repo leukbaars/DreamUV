@@ -1,10 +1,3 @@
-This is a fork of https://github.com/leukbaars/Blender
-
-* adds BRḾ-UVTools subfolder in Blender's addon folder
-* adds the BRM UVTools into Blender's UV Menu
-
----
-
 # BRM UVTools
 
 ## About
