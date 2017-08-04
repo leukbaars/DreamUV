@@ -15,9 +15,15 @@ bl_info = {
 
 import bpy
 from bpy.props import EnumProperty, BoolProperty
-from . import BRM_UVTranslate as T
-from . import BRM_UVRotate as R
-from . import BRM_UVScale as S
+
+locals_list = locals()
+if "BRM_UVTranslate" in locals_list:
+    from importlib import reload
+    reload(BRM_UVTranslate)
+    reload(BRM_UVRotate)
+    reload(BRM_UVScale)
+else:
+    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale
 
 
 uvmenutype = [("SUBMENU", "Submenu", ""),
@@ -70,15 +76,16 @@ def uv_menu_func(self, context):
 
 
 def prefs():
-    return bpy.context.user_preferences.addons["BRM-UVTools"].preferences
+    return bpy.context.user_preferences.addons[__name__].preferences
 
 
 def register():
     bpy.utils.register_class(BRMUVToolsPreferences)
     bpy.utils.register_class(BRM_UVMenu)
-    bpy.utils.register_class(T.UVTranslate)
-    bpy.utils.register_class(R.UVRotate)
-    bpy.utils.register_class(S.UVScale)
+    bpy.utils.register_class(BRM_UVPanel)
+    bpy.utils.register_class(BRM_UVTranslate.UVTranslate)
+    bpy.utils.register_class(BRM_UVRotate.UVRotate)
+    bpy.utils.register_class(BRM_UVScale.UVScale)
 
     if prefs().adduvmenu:
         bpy.types.VIEW3D_MT_uv_map.prepend(uv_menu_func)
@@ -86,6 +93,11 @@ def register():
 
 def unregister():
     bpy.utils.unregister_class(BRM_UVMenu)
-    bpy.utils.unregister_class(T.UVTranslate)
-    bpy.utils.unregister_class(R.UVRotate)
-    bpy.utils.unregister_class(S.UVScale)
+    bpy.utils.unregister_class(BRM_UVPanel)
+    bpy.utils.unregister_class(BRM_UVTranslate.UVTranslate)
+    bpy.utils.unregister_class(BRM_UVRotate.UVRotate)
+    bpy.utils.unregister_class(BRM_UVScale.UVScale)
+
+
+if __name__ == "__main__":
+    register()
