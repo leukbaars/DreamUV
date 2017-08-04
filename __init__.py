@@ -33,11 +33,22 @@ uvmenutype = [("SUBMENU", "Submenu", ""),
 class BRMUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
 
+    pixel_snap = BoolProperty(
+        name="UV Pixel Snap",
+        description="Snap translate to UV pixels when possible",
+        default=False
+    )
+
+    show_panel_tools = BoolProperty(
+        name="Show Tools in UV Panel",
+        default=True
+    )
+
     adduvmenu = BoolProperty(name="Add BRM UVTools to UV Menu", default=True)
     individualorsubmenu = EnumProperty(name="Individual or Sub-Menu", items=uvmenutype, default="SUBMENU")
 
     def draw(self, context):
-        layout=self.layout
+        layout = self.layout
 
         column = layout.column(align=True)
 
@@ -45,6 +56,32 @@ class BRMUVToolsPreferences(bpy.types.AddonPreferences):
         row.prop(self, "adduvmenu")
         if self.adduvmenu:
             row.prop(self, "individualorsubmenu", expand=True)
+
+        column.prop(self, "show_panel_tools")
+        column.prop(self, "pixel_snap")
+
+
+class BRM_UVPanel(bpy.types.Panel):
+    """UV Tools Panel Test!"""
+    bl_label = "BRM UV Tools"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'TOOLS'
+    bl_category = 'Shading / UVs'
+    bl_context = "mesh_edit"
+
+    def draw(self, context):
+        layout = self.layout
+
+        addon_prefs = prefs()
+        if addon_prefs.show_panel_tools:
+            col = layout.column(align=True)
+            col.label(text="Viewport UV tools:")
+            col.operator("mesh.brm_uvtranslate", text="Translate")
+            col.operator("mesh.brm_uvscale", text="Scale")
+            col.operator("mesh.brm_uvrotate", text="Rotate")
+
+        layout.separator()
+        layout.prop(addon_prefs, "pixel_snap")
 
 
 class BRM_UVMenu(bpy.types.Menu):
