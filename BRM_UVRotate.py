@@ -95,9 +95,9 @@ class UVRotate(bpy.types.Operator):
             #neutralize angle for mouse start position
             delta+=self.startdelta
 
-            print(event.mouse_x)
+
             vcenterx = (bpy.context.region.width/2)+bpy.context.region.x
-            print(vcenterx)
+
             #step rotation
             if event.ctrl and not event.shift:
                 #PI/4=0.78539816339
@@ -129,5 +129,24 @@ class UVRotate(bpy.types.Operator):
             bpy.ops.object.mode_set(mode='OBJECT')
             bpy.ops.object.mode_set(mode='EDIT')
             return {'FINISHED'}
+        
+        elif event.type in {'RIGHTMOUSE', 'ESC'}:
+            context.area.header_text_set()
+
+            # reset all uvs to reference
+            delta=self.startdelta
+            for i,face in enumerate(self.bm.faces):
+                if face.select:
+                    for o,vert in enumerate(face.loops):
+
+                        px=self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv.x
+                        py=self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv.y
+
+                        vert[self.bm.loops.layers.uv.active].uv.x = math.cos(delta) * (px-self.xcenter) - math.sin(delta) * (py-self.ycenter) + self.xcenter
+                        vert[self.bm.loops.layers.uv.active].uv.y = math.sin(delta) * (px-self.xcenter) +  math.cos(delta) * (py-self.ycenter) + self.ycenter
+
+            #update mesh
+            bmesh.update_edit_mesh(self.mesh, False, False)
+            return {'CANCELLED'}
 
         return {'RUNNING_MODAL'}
