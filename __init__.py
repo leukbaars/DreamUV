@@ -19,11 +19,12 @@ from bpy.props import EnumProperty, BoolProperty
 locals_list = locals()
 if "BRM_UVTranslate" in locals_list:
     from importlib import reload
+    reload(BRM_Utils)
     reload(BRM_UVTranslate)
     reload(BRM_UVRotate)
     reload(BRM_UVScale)
 else:
-    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale
+    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_Utils
 
 
 uvmenutype = [("SUBMENU", "Submenu", ""),
@@ -76,9 +77,9 @@ class BRM_UVPanel(bpy.types.Panel):
         if addon_prefs.show_panel_tools:
             col = layout.column(align=True)
             col.label(text="Viewport UV tools:")
-            col.operator("mesh.brm_uvtranslate", text="Translate")
-            col.operator("mesh.brm_uvscale", text="Scale")
-            col.operator("mesh.brm_uvrotate", text="Rotate")
+            col.operator("brm.uvtranslate", text="Translate")
+            col.operator("brm.uvscale", text="Scale")
+            col.operator("brm.uvrotate", text="Rotate")
 
         layout.separator()
         layout.prop(addon_prefs, "pixel_snap")
@@ -129,6 +130,7 @@ def register():
 
 
 def unregister():
+    bpy.utils.unregister_class(BRMUVToolsPreferences)
     bpy.utils.unregister_class(BRM_UVMenu)
     bpy.utils.unregister_class(BRM_UVPanel)
     bpy.utils.unregister_class(BRM_UVTranslate.UVTranslate)
