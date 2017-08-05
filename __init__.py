@@ -71,18 +71,19 @@ class BRM_UVPanel(bpy.types.Panel):
     bl_context = "mesh_edit"
 
     def draw(self, context):
-        layout = self.layout
-
         addon_prefs = prefs()
         if addon_prefs.show_panel_tools:
+            layout = self.layout
+
             col = layout.column(align=True)
             col.label(text="Viewport UV tools:")
-            col.operator("brm.uvtranslate", text="Translate")
-            col.operator("brm.uvscale", text="Scale")
-            col.operator("brm.uvrotate", text="Rotate")
+            col.operator("uv.brm_uvtranslate", text="Translate")
+            col.operator("uv.brm_uvscale", text="Scale")
+            col.operator("uv.brm_uvrotate", text="Rotate")
 
-        layout.separator()
-        layout.prop(addon_prefs, "pixel_snap")
+            layout.separator()
+            layout.prop(addon_prefs, "pixel_snap")
+        
 
 
 class BRM_UVMenu(bpy.types.Menu):
@@ -92,9 +93,9 @@ class BRM_UVMenu(bpy.types.Menu):
         layout = self.layout
 
         col = layout.column()
-        col.operator("brm.uvtranslate", text="UVTranslate")
-        col.operator("brm.uvrotate", text="UVRotate")
-        col.operator("brm.uvscale", text="UVScale")
+        col.operator("uv.brm_uvtranslate", text="UVTranslate")
+        col.operator("uv.brm_uvrotate", text="UVRotate")
+        col.operator("uv.brm_uvscale", text="UVScale")
 
 
 def uv_menu_func(self, context):
@@ -106,9 +107,9 @@ def uv_menu_func(self, context):
 
             col = layout.column()
             col.operator_context = 'INVOKE_DEFAULT'
-            col.operator("brm.uvtranslate", text="BRM UVTranslate")
-            col.operator("brm.uvrotate", text="BRM UVRotate")
-            col.operator("brm.uvscale", text="BRM UVScale")
+            col.operator("uv.brm_uvtranslate", text="BRM UVTranslate")
+            col.operator("uv.brm_uvrotate", text="BRM UVRotate")
+            col.operator("uv.brm_uvscale", text="BRM UVScale")
 
         self.layout.separator()
 

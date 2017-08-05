@@ -5,7 +5,7 @@ import math
 
 class UVScale(bpy.types.Operator):
     """Scale UVs in the 3D Viewport"""
-    bl_idname = "brm.uvscale"
+    bl_idname = "uv.brm_uvscale"
     bl_label = "BRM UVScale"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 

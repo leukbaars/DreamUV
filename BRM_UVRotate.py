@@ -5,7 +5,7 @@ import math
 
 class UVRotate(bpy.types.Operator):
     """Rotate UVs in the 3D Viewport"""
-    bl_idname = "brm.uvrotate"
+    bl_idname = "uv.brm_uvrotate"
     bl_label = "BRM UVRotate"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 

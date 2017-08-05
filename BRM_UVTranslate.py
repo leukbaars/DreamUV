@@ -7,7 +7,7 @@ from . import BRM_Utils
 
 class UVTranslate(bpy.types.Operator):
     """Translate UVs in the 3D Viewport"""
-    bl_idname = "brm.uvtranslate"
+    bl_idname = "uv.brm_uvtranslate"
     bl_label = "BRM UVTranslate"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
