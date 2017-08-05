@@ -15,16 +15,7 @@ bl_info = {
 
 import bpy
 from bpy.props import EnumProperty, BoolProperty
-
-locals_list = locals()
-if "BRM_UVTranslate" in locals_list:
-    from importlib import reload
-    reload(BRM_Utils)
-    reload(BRM_UVTranslate)
-    reload(BRM_UVRotate)
-    reload(BRM_UVScale)
-else:
-    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_Utils
+from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_Utils
 
 
 uvmenutype = [("SUBMENU", "Submenu", ""),
