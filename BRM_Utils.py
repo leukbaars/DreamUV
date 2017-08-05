@@ -35,16 +35,3 @@ def get_face_pixel_step(context, face):
     # With the texture in hand, save the UV step for one pixel movement
     pixel_step = Vector((1 / target_img.size[0], 1 / target_img.size[1]))
     return pixel_step
-
-
-def register():
-    print("Utils registered")
-    bpy.utils.register_module(__name__)
-
-
-def unregister():
-    bpy.utils.unregister_module(__name__)
-
-
-if __name__ == '__main__':
-    register()
