@@ -134,7 +134,7 @@ class UVRotate(bpy.types.Operator):
             context.area.header_text_set()
 
             # reset all uvs to reference
-            delta=self.startdelta
+            delta=0
             for i,face in enumerate(self.bm.faces):
                 if face.select:
                     for o,vert in enumerate(face.loops):
