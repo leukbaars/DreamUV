@@ -27,6 +27,9 @@ class UVScale(bpy.types.Operator):
     s1=3
     s2=.5
 
+    def execute(self, context):
+        return self.invoke(context, None)
+
     def invoke(self, context, event):
         # Check that this isn't being invoked out of a viewport
         if context.space_data.type != 'VIEW_3D':

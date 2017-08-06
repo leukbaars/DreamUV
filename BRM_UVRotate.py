@@ -20,6 +20,9 @@ class UVRotate(bpy.types.Operator):
 
     startdelta=0
 
+    def execute(self, context):
+        return self.invoke(context, None)
+
     def invoke(self, context, event):
         # Check that this isn't being invoked out of a viewport
         if context.space_data.type != 'VIEW_3D':

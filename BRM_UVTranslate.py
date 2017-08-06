@@ -31,6 +31,9 @@ class UVTranslate(bpy.types.Operator):
 
     pixel_steps = None
     do_pixel_snap = False
+    
+    def execute(self, context):
+        return self.invoke(context, None)
 
     def invoke(self, context, event):
         # Check that this isn't being invoked out of a viewport
