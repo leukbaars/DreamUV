@@ -1,6 +1,7 @@
 import bpy
 import bmesh
 import math
+import sys
 from mathutils import Vector
 from . import BRM_Utils
 
@@ -32,7 +33,15 @@ class UVTranslate(bpy.types.Operator):
     pixel_steps = None
     do_pixel_snap = False
 
+    face_axis = None
+    uv_axis_default = None
+
     def invoke(self, context, event):
+
+        if context.object is None:
+            self.report({'WARNING'}, "No active object")
+            return {'CANCELLED'}
+
         self.shiftreset = False
         self.xlock = False
         self.ylock = False
@@ -43,49 +52,92 @@ class UVTranslate(bpy.types.Operator):
         self.pixel_steps = None
         self.do_pixel_snap = False
 
+        self.face_axis = None
+
         # object->edit switch seems to "lock" the data. Ugly but hey it works
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.mode_set(mode='EDIT')
 
-        if context.object:
-            print("UV Translate")
-            self.first_mouse_x = event.mouse_x
-            self.first_mouse_y = event.mouse_y
+        print("UV Translate")
 
-            self.mesh = bpy.context.object.data
-            self.bm = bmesh.from_edit_mesh(self.mesh)
+        self.first_mouse_x = event.mouse_x
+        self.first_mouse_y = event.mouse_y
 
-            # save original for reference
-            self.bm2 = bmesh.new()
-            self.bm2.from_mesh(self.mesh)
-            self.bm_orig = bmesh.new()
-            self.bm_orig.from_mesh(self.mesh)
+        self.mesh = bpy.context.object.data
+        self.bm = bmesh.from_edit_mesh(self.mesh)
 
-            # have to do this for some reason
-            self.bm.faces.ensure_lookup_table()
-            self.bm2.faces.ensure_lookup_table()
-            self.bm_orig.faces.ensure_lookup_table()
+        # save original for reference
+        self.bm2 = bmesh.new()
+        self.bm2.from_mesh(self.mesh)
+        self.bm_orig = bmesh.new()
+        self.bm_orig.from_mesh(self.mesh)
 
-            # Get refrerence to addon preference to get snap setting
-            module_name = __name__.split('.')[0]
-            addon_prefs = context.user_preferences.addons[module_name].preferences
-            self.do_pixel_snap = addon_prefs.pixel_snap
-            # Precalculate data before going into modal
-            self.pixel_steps = {}
-            for i, face in enumerate(self.bm.faces):
-                if face.select is False:
-                    continue
-                # Find pixel steps per face here to look up in future translations
-                if self.do_pixel_snap:
-                    pixel_step = BRM_Utils.get_face_pixel_step(context, face)
-                    if pixel_step is not None:
-                        self.pixel_steps[face.index] = pixel_step
+        # have to do this for some reason
+        self.bm.faces.ensure_lookup_table()
+        self.bm2.faces.ensure_lookup_table()
+        self.bm_orig.faces.ensure_lookup_table()
 
-            context.window_manager.modal_handler_add(self)
-            return {'RUNNING_MODAL'}
-        else:
-            self.report({'WARNING'}, "No active object")
+        # Get reference to addon preference to get snap setting
+        module_name = __name__.split('.')[0]
+        addon_prefs = context.user_preferences.addons[module_name].preferences
+        self.do_pixel_snap = addon_prefs.pixel_snap
+
+        # Precalculate data before going into modal
+        self.pixel_steps = {}
+        self.uv_axis_default = (
+            Vector((1.0, 0.0)),
+            Vector((0.0, 1.0))
+        )
+
+        # Won't translate if didn't pass any selected faces
+        will_translate = False
+
+        # Variables for calculating UV axis
+        world_matrix = context.object.matrix_world
+        rv3d = context.region_data
+        view_up_vector = rv3d.view_rotation * Vector((0.0, 1.0, 0.0))
+        view_right_vector = rv3d.view_rotation * Vector((1.0, 0.0, 0.0))
+        face_view_dot_max = sys.float_info.min
+        face_view_dist = sys.float_info.max
+        uv_layer = self.bm.loops.layers.uv.active
+        for i, face in enumerate(self.bm.faces):
+            # Don't process unselected faces
+            if face.select is False:
+                continue
+            will_translate = True
+            # Find pixel steps per face to look up for pixel snap.
+            # Doing this per face in case faces have different textures applied
+            if self.do_pixel_snap:
+                pixel_step = BRM_Utils.get_face_pixel_step(context, face)
+                if pixel_step is not None:
+                    self.pixel_steps[face.index] = pixel_step
+
+            # Find the UV directions for this face in relation to viewport
+            face_axis = BRM_Utils.get_face_uv_axis(
+                                        face, uv_layer, world_matrix,
+                                        view_up_vector, view_right_vector
+                                    )
+            # Able to find UV directions for this face...
+            if face_axis is not None:
+                face_uv_axis = face_axis[0:2]
+
+                # Find the face closest to view direction
+                normalized_dot = face_axis[2]
+                face_pos = world_matrix * face.calc_center_bounds()
+                dist_to_view = (face_pos - Vector(rv3d.view_location)).magnitude
+                if normalized_dot > face_view_dot_max and dist_to_view < face_view_dist:
+                    face_view_dot_max = normalized_dot
+                    face_view_dist = dist_to_view
+                    # Make this face UV axis the default
+                    self.uv_axis_default = face_uv_axis
+
+        # No faces selected while looping
+        if will_translate is False:
+            self.report({'WARNING'}, "No selected faces to transform")
             return {'CANCELLED'}
+
+        context.window_manager.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
 
     def modal(self, context, event):
         context.area.header_text_set(
@@ -194,8 +246,8 @@ class UVTranslate(bpy.types.Operator):
                     local_delta.x *= pixel_step.x
                     local_delta.y *= pixel_step.y
 
-                uv_x_axis = Vector((1.0, 0.0))
-                uv_y_axis = Vector((0.0, 1.0))
+                uv_x_axis = self.uv_axis_default[0]
+                uv_y_axis = self.uv_axis_default[1]
 
                 if self.xlock:
                     uv_x_axis = Vector((0, 0))
