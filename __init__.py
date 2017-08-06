@@ -49,6 +49,7 @@ class BRMUVToolsPreferences(bpy.types.AddonPreferences):
         if self.adduvmenu:
             row.prop(self, "individualorsubmenu", expand=True)
 
+        column.separator()
         column.prop(self, "show_panel_tools")
         column.prop(self, "pixel_snap")
 
@@ -74,7 +75,7 @@ class BRM_UVPanel(bpy.types.Panel):
 
             layout.separator()
             layout.prop(addon_prefs, "pixel_snap")
-        
+
 
 
 class BRM_UVMenu(bpy.types.Menu):
