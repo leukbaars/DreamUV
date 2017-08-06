@@ -33,6 +33,11 @@ class UVTranslate(bpy.types.Operator):
     do_pixel_snap = False
 
     def invoke(self, context, event):
+        # Check that this isn't being invoked out of a viewport
+        if context.space_data.type != 'VIEW_3D':
+            self.report({'WARNING'}, "Active space must be a View3d: {0}".format(context.space_data.type))
+            return {'CANCELLED'}
+
         self.shiftreset = False
         self.xlock = False
         self.ylock = False
