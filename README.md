@@ -5,8 +5,8 @@ This script will add the ability to translate, scale and rotate UV coordinates d
 
 ## Installation
 
-* download as a zip and extract it into the addon folder
-* activate BRM UVTools in the addons tab of the user preferences
+* download as a zip and in user Preferences/Add-ons, use "Install from File..."
+* BRM UVTools should now be visible in the add-ons tab, in the UV category. Activate and set preferences.
 * once activated, you can find BRM UVTools in Blenders UV menu (default keymapped to 'U') in Edit mode and in the Shading/UV's panel.
 
 ## Using BRM UVTools
