@@ -10,7 +10,6 @@ class UVExtend(bpy.types.Operator):
     bl_options = {"UNDO"}
 
     def execute(self, context):  
-        print("crycrycry")
         mesh = bpy.context.object.data
         bm = bmesh.from_edit_mesh(mesh)
         bm.faces.ensure_lookup_table()
