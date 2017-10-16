@@ -10,12 +10,20 @@ bl_info = {
     "category": "UV",
     "author": "Bram Eulaers",
     "description": "Edit selected faces'UVs directly inside the 3D Viewport. WIP. Check for updates @leukbaars",
-    "version": (0, 6)
+    "version": (0, 7)
 }
 
-import bpy
-from bpy.props import EnumProperty, BoolProperty
-from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_Utils
+if 'bpy' not in locals():
+    import bpy
+    from bpy.props import EnumProperty, BoolProperty
+    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_UVExtend, BRM_Utils
+else:
+    from importlib import reload
+    reload(BRM_UVTranslate)
+    reload(BRM_UVRotate)
+    reload(BRM_UVScale)
+    reload(BRM_UVExtend)
+    reload(BRM_Utils)
 
 
 uvmenutype = [("SUBMENU", "Submenu", ""),
@@ -71,11 +79,8 @@ class BRM_UVPanel(bpy.types.Panel):
             col.operator("uv.brm_uvtranslate", text="Translate")
             col.operator("uv.brm_uvscale", text="Scale")
             col.operator("uv.brm_uvrotate", text="Rotate")
-
-            layout.separator()
+            col.operator("uv.brm_uvextend", text="Extend")
             layout.prop(addon_prefs, "pixel_snap")
-        
-
 
 class BRM_UVMenu(bpy.types.Menu):
     bl_label = "BRM UV Tools"
@@ -87,6 +92,7 @@ class BRM_UVMenu(bpy.types.Menu):
         col.operator("uv.brm_uvtranslate", text="UVTranslate")
         col.operator("uv.brm_uvrotate", text="UVRotate")
         col.operator("uv.brm_uvscale", text="UVScale")
+        col.operator("uv.brm_uvextend", text="UVExtend")
 
 
 def uv_menu_func(self, context):
@@ -116,6 +122,7 @@ def register():
     bpy.utils.register_class(BRM_UVTranslate.UVTranslate)
     bpy.utils.register_class(BRM_UVRotate.UVRotate)
     bpy.utils.register_class(BRM_UVScale.UVScale)
+    bpy.utils.register_class(BRM_UVExtend.UVExtend)
 
     if prefs().adduvmenu:
         bpy.types.VIEW3D_MT_uv_map.prepend(uv_menu_func)
@@ -128,6 +135,7 @@ def unregister():
     bpy.utils.unregister_class(BRM_UVTranslate.UVTranslate)
     bpy.utils.unregister_class(BRM_UVRotate.UVRotate)
     bpy.utils.unregister_class(BRM_UVScale.UVScale)
+    bpy.utils.unregister_class(BRM_UVExtend.UVExtend)
 
 
 if __name__ == "__main__":

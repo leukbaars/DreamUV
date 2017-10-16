@@ -33,6 +33,7 @@ class UVTranslate(bpy.types.Operator):
     do_pixel_snap = False
 
     def invoke(self, context, event):
+
         self.shiftreset = False
         self.xlock = False
         self.ylock = False
@@ -48,7 +49,6 @@ class UVTranslate(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='EDIT')
 
         if context.object:
-            print("UV Translate")
             self.first_mouse_x = event.mouse_x
             self.first_mouse_y = event.mouse_y
 
