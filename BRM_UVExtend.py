@@ -4,13 +4,12 @@ import math
 from mathutils import Vector
 
 class UVExtend(bpy.types.Operator):
-    """Translate UVs in the 3D Viewport"""
+    """Extend UVs on selected faces from active face"""
     bl_idname = "uv.brm_uvextend"
     bl_label = "3D View UV Extend"
     bl_options = {"UNDO"}
 
     def execute(self, context):  
-        print("crycrycry")
         mesh = bpy.context.object.data
         bm = bmesh.from_edit_mesh(mesh)
         bm.faces.ensure_lookup_table()
@@ -26,9 +25,6 @@ class UVExtend(bpy.types.Operator):
         for f in bm.faces:
             if f.select:
                 facecounter += 1
-        if facecounter > 2:
-            self.report({'INFO'}, "more than 2 faces selected, aborting")
-            return {'FINISHED'}
         if facecounter < 2:
             self.report({'INFO'}, "only one face selected, aborting")
             return {'FINISHED'}
@@ -36,14 +32,15 @@ class UVExtend(bpy.types.Operator):
 
         #save active face!
         for l in bm.faces.active.loops:
-            face0.append(l)
+            face1.append(l)
 
         #save other face
         for f in bm.faces:
             if f.select:
                 if f is not bm.faces.active:
                     for l in f.loops:
-                        face1.append(l)
+                        face0.append(l)
+                else:
                     f.select=False
 
         bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.001)
