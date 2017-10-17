@@ -16,13 +16,14 @@ bl_info = {
 if 'bpy' not in locals():
     import bpy
     from bpy.props import EnumProperty, BoolProperty
-    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_UVExtend, BRM_Utils
+    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_UVExtend, BRM_UVStitch, BRM_Utils
 else:
     from importlib import reload
     reload(BRM_UVTranslate)
     reload(BRM_UVRotate)
     reload(BRM_UVScale)
     reload(BRM_UVExtend)
+    reload(BRM_UVStitch)
     reload(BRM_Utils)
 
 
@@ -69,30 +70,41 @@ class BRM_UVPanel(bpy.types.Panel):
     bl_category = 'Shading / UVs'
     bl_context = "mesh_edit"
 
+    @classmethod
+    def poll(cls, context):
+        prefs = bpy.context.user_preferences.addons[__name__].preferences
+        return prefs.show_panel_tools
+
+    def draw_header(self, _):
+        layout = self.layout
+        layout.label(text="", icon='FACESEL_HLT')
+
     def draw(self, context):
         addon_prefs = prefs()
-        if addon_prefs.show_panel_tools:
-            layout = self.layout
+        layout = self.layout
 
-            col = layout.column(align=True)
-            col.label(text="Viewport UV tools:")
-            col.operator("uv.brm_uvtranslate", text="Translate")
-            col.operator("uv.brm_uvscale", text="Scale")
-            col.operator("uv.brm_uvrotate", text="Rotate")
-            col.operator("uv.brm_uvextend", text="Extend")
-            layout.prop(addon_prefs, "pixel_snap")
+        col = layout.column(align=True)
+        col.label(text="Viewport UV tools:")
+        col.operator("uv.brm_uvtranslate", text="Translate", icon="MAN_TRANS")
+        col.operator("uv.brm_uvscale", text="Scale", icon="MAN_SCALE")
+        col.operator("uv.brm_uvrotate", text="Rotate", icon="MAN_ROT")
+        col.operator("uv.brm_uvextend", text="Extend", icon="MOD_SHRINKWRAP")
+        col.operator("uv.brm_uvstitch", text="Stitch", icon="MOD_TRIANGULATE")
+        layout.prop(addon_prefs, "pixel_snap")
 
 class BRM_UVMenu(bpy.types.Menu):
     bl_label = "BRM UV Tools"
-
+    
+    
     def draw(self, context):
         layout = self.layout
 
         col = layout.column()
-        col.operator("uv.brm_uvtranslate", text="UVTranslate")
-        col.operator("uv.brm_uvrotate", text="UVRotate")
-        col.operator("uv.brm_uvscale", text="UVScale")
-        col.operator("uv.brm_uvextend", text="UVExtend")
+        col.operator("uv.brm_uvtranslate", text="UVTranslate", icon="MAN_TRANS")
+        col.operator("uv.brm_uvrotate", text="UVRotate", icon="MAN_ROT")
+        col.operator("uv.brm_uvscale", text="UVScale", icon="MAN_SCALE")
+        col.operator("uv.brm_uvextend", text="UVExtend", icon="MOD_SHRINKWRAP")
+        col.operator("uv.brm_uvstitch", text="UVStitch", icon="MOD_TRIANGULATE")
 
 
 def uv_menu_func(self, context):
@@ -104,9 +116,11 @@ def uv_menu_func(self, context):
 
             col = layout.column()
             col.operator_context = 'INVOKE_DEFAULT'
-            col.operator("uv.brm_uvtranslate", text="BRM UVTranslate")
-            col.operator("uv.brm_uvrotate", text="BRM UVRotate")
-            col.operator("uv.brm_uvscale", text="BRM UVScale")
+            col.operator("uv.brm_uvtranslate", text="UVTranslate", icon="MAN_TRANS")
+            col.operator("uv.brm_uvrotate", text="UVRotate", icon="MAN_ROT")
+            col.operator("uv.brm_uvscale", text="UVScale", icon="MAN_SCALE")
+            col.operator("uv.brm_uvextend", text="UVExtend", icon="MOD_SHRINKWRAP")
+            col.operator("uv.brm_uvstitch", text="UVStitch", icon="MOD_TRIANGULATE")
 
         self.layout.separator()
 
@@ -123,6 +137,7 @@ def register():
     bpy.utils.register_class(BRM_UVRotate.UVRotate)
     bpy.utils.register_class(BRM_UVScale.UVScale)
     bpy.utils.register_class(BRM_UVExtend.UVExtend)
+    bpy.utils.register_class(BRM_UVStitch.UVStitch)
 
     if prefs().adduvmenu:
         bpy.types.VIEW3D_MT_uv_map.prepend(uv_menu_func)
@@ -136,6 +151,7 @@ def unregister():
     bpy.utils.unregister_class(BRM_UVRotate.UVRotate)
     bpy.utils.unregister_class(BRM_UVScale.UVScale)
     bpy.utils.unregister_class(BRM_UVExtend.UVExtend)
+    bpy.utils.unregister_class(BRM_UVStitch.UVStitch)
 
 
 if __name__ == "__main__":
