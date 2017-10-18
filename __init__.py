@@ -16,7 +16,7 @@ bl_info = {
 if 'bpy' not in locals():
     import bpy
     from bpy.props import EnumProperty, BoolProperty
-    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_UVExtend, BRM_UVStitch, BRM_Utils
+    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_UVExtend, BRM_UVStitch, BRM_UVTransfer, BRM_Utils
 else:
     from importlib import reload
     reload(BRM_UVTranslate)
@@ -24,6 +24,7 @@ else:
     reload(BRM_UVScale)
     reload(BRM_UVExtend)
     reload(BRM_UVStitch)
+    reload(BRM_UVTransfer)
     reload(BRM_Utils)
 
 
@@ -85,12 +86,15 @@ class BRM_UVPanel(bpy.types.Panel):
 
         col = layout.column(align=True)
         col.label(text="Viewport UV tools:")
+        layout.prop(addon_prefs, "pixel_snap")
+        col = layout.column(align=True)
         col.operator("uv.brm_uvtranslate", text="Translate", icon="MAN_TRANS")
         col.operator("uv.brm_uvscale", text="Scale", icon="MAN_SCALE")
         col.operator("uv.brm_uvrotate", text="Rotate", icon="MAN_ROT")
         col.operator("uv.brm_uvextend", text="Extend", icon="MOD_SHRINKWRAP")
         col.operator("uv.brm_uvstitch", text="Stitch", icon="MOD_TRIANGULATE")
-        layout.prop(addon_prefs, "pixel_snap")
+        col.operator("uv.brm_uvtransfer", text="Transfer", icon="MOD_UVPROJECT")
+        
 
 class BRM_UVMenu(bpy.types.Menu):
     bl_label = "BRM UV Tools"
@@ -105,6 +109,7 @@ class BRM_UVMenu(bpy.types.Menu):
         col.operator("uv.brm_uvscale", text="UVScale", icon="MAN_SCALE")
         col.operator("uv.brm_uvextend", text="UVExtend", icon="MOD_SHRINKWRAP")
         col.operator("uv.brm_uvstitch", text="UVStitch", icon="MOD_TRIANGULATE")
+        col.operator("uv.brm_uvtransfer", text="Transfer", icon="MOD_UVPROJECT")
 
 
 def uv_menu_func(self, context):
@@ -121,6 +126,7 @@ def uv_menu_func(self, context):
             col.operator("uv.brm_uvscale", text="UVScale", icon="MAN_SCALE")
             col.operator("uv.brm_uvextend", text="UVExtend", icon="MOD_SHRINKWRAP")
             col.operator("uv.brm_uvstitch", text="UVStitch", icon="MOD_TRIANGULATE")
+            col.operator("uv.brm_uvtransfer", text="Transfer", icon="MOD_UVPROJECT")
 
         self.layout.separator()
 
@@ -138,6 +144,7 @@ def register():
     bpy.utils.register_class(BRM_UVScale.UVScale)
     bpy.utils.register_class(BRM_UVExtend.UVExtend)
     bpy.utils.register_class(BRM_UVStitch.UVStitch)
+    bpy.utils.register_class(BRM_UVTransfer.UVTransfer)
 
     if prefs().adduvmenu:
         bpy.types.VIEW3D_MT_uv_map.prepend(uv_menu_func)
@@ -152,6 +159,7 @@ def unregister():
     bpy.utils.unregister_class(BRM_UVScale.UVScale)
     bpy.utils.unregister_class(BRM_UVExtend.UVExtend)
     bpy.utils.unregister_class(BRM_UVStitch.UVStitch)
+    bpy.utils.unregister_class(BRM_UVTransfer.UVTransfer)
 
 
 if __name__ == "__main__":
