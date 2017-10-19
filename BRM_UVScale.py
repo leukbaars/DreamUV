@@ -27,6 +27,8 @@ class UVScale(bpy.types.Operator):
     s1=3
     s2=.5
 
+    move_snap = 2
+
     def invoke(self, context, event):
 
         #object->edit switch seems to "lock" the data. Ugly but hey it works
@@ -37,6 +39,11 @@ class UVScale(bpy.types.Operator):
         self.xlock=False
         self.ylock=False
         self.constrainttest = False
+
+        self.scale_snap = 2
+        module_name = __name__.split('.')[0]
+        addon_prefs = context.user_preferences.addons[module_name].preferences
+        self.scale_snap = addon_prefs.scale_snap
 
         if context.object:
             self.first_mouse_x = event.mouse_x+1000/self.s1
@@ -170,11 +177,11 @@ class UVScale(bpy.types.Operator):
                 deltay=1
 
             if event.ctrl and not event.shift:
-                deltax=math.floor(deltax*2)/2
-                deltay=math.floor(deltay*2)/2
+                deltax=math.floor(deltax*self.scale_snap)/self.scale_snap
+                deltay=math.floor(deltay*self.scale_snap)/self.scale_snap
             if event.ctrl and event.shift:
-                deltax=math.floor(deltax*8)/8
-                deltay=math.floor(deltay*8)/8
+                deltax=math.floor(deltax*self.scale_snap*self.scale_snap)/(self.scale_snap*self.scale_snap)
+                deltay=math.floor(deltay*self.scale_snap*self.scale_snap)/(self.scale_snap*self.scale_snap)
 
             #loop through every selected face and move the uv's using original uv as reference
             for i,face in enumerate(self.bm.faces):

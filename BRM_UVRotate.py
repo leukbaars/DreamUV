@@ -20,11 +20,18 @@ class UVRotate(bpy.types.Operator):
 
     startdelta=0
 
+    rotate_snap = 45
+
     def invoke(self, context, event):
 
         #object->edit switch seems to "lock" the data. Ugly but hey it works
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.mode_set(mode='EDIT')
+
+        self.rotate_snap = 45
+        module_name = __name__.split('.')[0]
+        addon_prefs = context.user_preferences.addons[module_name].preferences
+        self.rotate_snap = addon_prefs.rotate_snap
 
         if context.object:
             #self.first_mouse_x = event.mouse_x
@@ -100,12 +107,12 @@ class UVRotate(bpy.types.Operator):
 
             #step rotation
             if event.ctrl and not event.shift:
+
                 #PI/4=0.78539816339
-                PIdiv=0.78539816339
+                PIdiv=3.14159265359/(180/self.rotate_snap)
                 delta=math.floor(delta/PIdiv)*PIdiv
             if event.ctrl and event.shift:
-                #PI/16=0.19634954084
-                PIdiv=0.19634954084
+                PIdiv=3.14159265359/(180/self.rotate_snap)/2
                 delta=math.floor(delta/PIdiv)*PIdiv
 
             #loop through every selected face and scale the uv's using original uv as reference

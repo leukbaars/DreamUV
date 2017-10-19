@@ -15,8 +15,8 @@ bl_info = {
 
 if 'bpy' not in locals():
     import bpy
-    from bpy.props import EnumProperty, BoolProperty
-    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_UVExtend, BRM_UVStitch, BRM_UVTransfer, BRM_Utils
+    from bpy.props import EnumProperty, BoolProperty, FloatProperty
+    from . import BRM_UVTranslate, BRM_UVRotate, BRM_UVScale, BRM_UVExtend, BRM_UVStitch, BRM_UVTransfer, BRM_UVMoveToEdge,BRM_Utils
 else:
     from importlib import reload
     reload(BRM_UVTranslate)
@@ -25,6 +25,7 @@ else:
     reload(BRM_UVExtend)
     reload(BRM_UVStitch)
     reload(BRM_UVTransfer)
+    reload(BRM_UVMoveToEdge)
     reload(BRM_Utils)
 
 
@@ -37,8 +38,24 @@ class BRMUVToolsPreferences(bpy.types.AddonPreferences):
 
     pixel_snap = BoolProperty(
         name="UV Pixel Snap",
-        description="Snap translate to UV pixels when possible",
+        description="Translate Pixel Snapping",
         default=False
+    )
+
+    move_snap = FloatProperty(
+        name="UV Move Snap",
+        description="Translate Scale Subdivision Snap Size",
+        default=4
+    )
+    scale_snap = FloatProperty(
+        name="UV Scale Snap",
+        description="Scale Snap Size",
+        default=2
+    )
+    rotate_snap = FloatProperty(
+        name="UV Rotate Snap",
+        description="Rotate Angle Snap Size",
+        default=45
     )
 
     show_panel_tools = BoolProperty(
@@ -86,14 +103,41 @@ class BRM_UVPanel(bpy.types.Panel):
 
         col = layout.column(align=True)
         col.label(text="Viewport UV tools:")
-        layout.prop(addon_prefs, "pixel_snap")
+        row = col.row(align = True)
+        row.operator("uv.brm_uvtranslate", text="Move", icon="MAN_TRANS")
+        row = row.row(align = True)
+        row.prop(addon_prefs, 'move_snap', text="")
+        
+
+        row = col.row(align = True)
+        row.operator("uv.brm_uvscale", text="Scale", icon="MAN_SCALE")
+        row = row.row(align = True)
+        row.prop(addon_prefs, 'scale_snap', text="")
+
+        row = col.row(align = True)
+        row.operator("uv.brm_uvrotate", text="Rotate", icon="MAN_ROT")
+        row = row.row(align = True)
+        row.prop(addon_prefs, 'rotate_snap', text="")
+
+        layout.prop(addon_prefs, "pixel_snap", text = 'Move Pixel Snap')
+        #col.prop(addon_prefs, "pixel_snap", text = 'Move Pixel Snap', icon = 'FORCE_TEXTURE') 
+        
         col = layout.column(align=True)
-        col.operator("uv.brm_uvtranslate", text="Translate", icon="MAN_TRANS")
-        col.operator("uv.brm_uvscale", text="Scale", icon="MAN_SCALE")
-        col.operator("uv.brm_uvrotate", text="Rotate", icon="MAN_ROT")
+
         col.operator("uv.brm_uvextend", text="Extend", icon="MOD_SHRINKWRAP")
         col.operator("uv.brm_uvstitch", text="Stitch", icon="MOD_TRIANGULATE")
         col.operator("uv.brm_uvtransfer", text="Transfer", icon="MOD_UVPROJECT")
+
+        col.label(text="Move to UV edge:")
+        row = col.row(align = True)
+        op = row.operator("uv.brm_uvmovetoedge", text=" ", icon="TRIA_UP_BAR")
+        op.direction="up"
+        op = row.operator("uv.brm_uvmovetoedge", text=" ", icon="TRIA_DOWN_BAR")
+        op.direction="down"
+        op = row.operator("uv.brm_uvmovetoedge", text=" ", icon="TRIA_LEFT_BAR")
+        op.direction = "left"
+        op = row.operator("uv.brm_uvmovetoedge", text=" ", icon="TRIA_RIGHT_BAR")
+        op.direction = "right"
         
 
 class BRM_UVMenu(bpy.types.Menu):
@@ -145,6 +189,7 @@ def register():
     bpy.utils.register_class(BRM_UVExtend.UVExtend)
     bpy.utils.register_class(BRM_UVStitch.UVStitch)
     bpy.utils.register_class(BRM_UVTransfer.UVTransfer)
+    bpy.utils.register_class(BRM_UVMoveToEdge.UVMoveToEdge)
 
     if prefs().adduvmenu:
         bpy.types.VIEW3D_MT_uv_map.prepend(uv_menu_func)
@@ -160,6 +205,7 @@ def unregister():
     bpy.utils.unregister_class(BRM_UVExtend.UVExtend)
     bpy.utils.unregister_class(BRM_UVStitch.UVStitch)
     bpy.utils.unregister_class(BRM_UVTransfer.UVTransfer)
+    bpy.utils.unregister_class(BRM_UVMoveToEdge.UVMoveToEdge)
 
 
 if __name__ == "__main__":

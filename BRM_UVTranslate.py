@@ -32,6 +32,8 @@ class UVTranslate(bpy.types.Operator):
     pixel_steps = None
     do_pixel_snap = False
 
+    move_snap = 4
+
     def invoke(self, context, event):
 
         self.shiftreset = False
@@ -43,6 +45,8 @@ class UVTranslate(bpy.types.Operator):
 
         self.pixel_steps = None
         self.do_pixel_snap = False
+
+        self.move_snap = 0.25
 
         # object->edit switch seems to "lock" the data. Ugly but hey it works
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -66,10 +70,12 @@ class UVTranslate(bpy.types.Operator):
             self.bm2.faces.ensure_lookup_table()
             self.bm_orig.faces.ensure_lookup_table()
 
-            # Get refrerence to addon preference to get snap setting
+            # Get refrerence to addon preference to get snap and scale setting
             module_name = __name__.split('.')[0]
             addon_prefs = context.user_preferences.addons[module_name].preferences
             self.do_pixel_snap = addon_prefs.pixel_snap
+            self.move_snap = addon_prefs.move_snap
+            print(self.move_snap)
             # Precalculate data before going into modal
             self.pixel_steps = {}
             for i, face in enumerate(self.bm.faces):
@@ -177,11 +183,11 @@ class UVTranslate(bpy.types.Operator):
                     self.delta = Vector(self.delta)
 
             if event.ctrl and not event.shift:
-                self.delta.x = math.floor(self.delta.x * 4) / 4
-                self.delta.y = math.floor(self.delta.y * 4) / 4
+                self.delta.x = math.floor(self.delta.x * self.move_snap) / self.move_snap
+                self.delta.y = math.floor(self.delta.y * self.move_snap) / self.move_snap
             if event.ctrl and event.shift:
-                self.delta.x = math.floor(self.delta.x * 16) / 16
-                self.delta.y = math.floor(self.delta.y * 16) / 16
+                self.delta.x = math.floor(self.delta.x * (self.move_snap*self.move_snap)) / (self.move_snap*self.move_snap)
+                self.delta.y = math.floor(self.delta.y * (self.move_snap*self.move_snap)) / (self.move_snap*self.move_snap)
 
             # loop through every selected face and move the uv's using original uv as reference
             for i, face in enumerate(self.bm.faces):
