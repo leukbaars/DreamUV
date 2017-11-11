@@ -1,6 +1,7 @@
 import bpy
 import bmesh
 import math
+import array
 from mathutils import Vector
 
 class UVExtend(bpy.types.Operator):
@@ -42,9 +43,22 @@ class UVExtend(bpy.types.Operator):
                         face0.append(l)
                 else:
                     f.select=False
-
+        
         bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.001)
 
+        #test if mirrored
+        v=[]
+        for l in face1:
+            v.append(l[uv_layer].uv)
+
+        a=[v[1].x-v[0].x,v[1].y-v[0].y]
+        b=[v[2].x-v[0].x,v[2].y-v[0].y]
+        n=a[0]*b[1]-a[1]*b[0]
+
+        #and flip face0 if face1 is mirrored
+        if n<0:
+            for l in face0:
+                l[uv_layer].uv.x = -l[uv_layer].uv.x
 
         #find first 2 shared vertices
 
