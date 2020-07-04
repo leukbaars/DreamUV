@@ -9,7 +9,7 @@ This script will add the ability to translate, scale and rotate UV coordinates d
 * DreamUV should now be visible in the add-ons tab, in the UV category.
 * once activated, you can find DreamUV in the toolbar in Edit mode.
 
-## Using BRM UVTools
+## Using DreamUV
 
 
 
