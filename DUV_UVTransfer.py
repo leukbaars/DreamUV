@@ -20,26 +20,38 @@ class UVTransfer(bpy.types.Operator):
 
         xmin,xmax,ymin,ymax=0,0,0,0
 
-        first = True
+        selected_uv_loops = list()
+
         for i,face in enumerate(bm.faces):
             if face.select:
                 for o,vert in enumerate(face.loops):
                     if vert[bm.loops.layers.uv.active].select:
-                        if first:
-                            xmin=vert[bm.loops.layers.uv.active].uv.x
-                            xmax=vert[bm.loops.layers.uv.active].uv.x
-                            ymin=vert[bm.loops.layers.uv.active].uv.y
-                            ymax=vert[bm.loops.layers.uv.active].uv.y
-                            first=False
-                        else:
-                            if vert[bm.loops.layers.uv.active].uv.x < xmin:
-                                xmin=vert[bm.loops.layers.uv.active].uv.x
-                            elif vert[bm.loops.layers.uv.active].uv.x > xmax:
-                                xmax=vert[bm.loops.layers.uv.active].uv.x
-                            if vert[bm.loops.layers.uv.active].uv.y < ymin:
-                                ymin=vert[bm.loops.layers.uv.active].uv.y
-                            elif vert[bm.loops.layers.uv.active].uv.y > ymax:
-                                ymax=vert[bm.loops.layers.uv.active].uv.y
+                        selected_uv_loops.append(vert)
+
+        #if nothing is selected, match UV selection to mesh selection
+
+        if len(selected_uv_loops) == 0:
+            for i,face in enumerate(bm.faces):
+                if face.select:
+                    selected_uv_loops.extend(face.loops)
+
+        first = True
+        for vert in selected_uv_loops:
+            if first:
+                xmin=vert[bm.loops.layers.uv.active].uv.x
+                xmax=vert[bm.loops.layers.uv.active].uv.x
+                ymin=vert[bm.loops.layers.uv.active].uv.y
+                ymax=vert[bm.loops.layers.uv.active].uv.y
+                first=False
+            else:
+                if vert[bm.loops.layers.uv.active].uv.x < xmin:
+                    xmin=vert[bm.loops.layers.uv.active].uv.x
+                elif vert[bm.loops.layers.uv.active].uv.x > xmax:
+                    xmax=vert[bm.loops.layers.uv.active].uv.x
+                if vert[bm.loops.layers.uv.active].uv.y < ymin:
+                    ymin=vert[bm.loops.layers.uv.active].uv.y
+                elif vert[bm.loops.layers.uv.active].uv.y > ymax:
+                    ymax=vert[bm.loops.layers.uv.active].uv.y
 
 
         aspect = (xmax-xmin)/(ymax-ymin)
@@ -51,15 +63,11 @@ class UVTransfer(bpy.types.Operator):
 
         #move to 0,1
 
-        for i,face in enumerate(bm.faces):
-            if face.select:
-                for o,vert in enumerate(face.loops):
-                    if vert[bm.loops.layers.uv.active].select:
-                        vert[bm.loops.layers.uv.active].uv.x -= xmin
-                        vert[bm.loops.layers.uv.active].uv.y -= ymin
-                        vert[bm.loops.layers.uv.active].uv.x /= (xmax-xmin)
-                        vert[bm.loops.layers.uv.active].uv.y /= (ymax-ymin)
-                        
+        for vert in selected_uv_loops:
+            vert[bm.loops.layers.uv.active].uv.x -= xmin
+            vert[bm.loops.layers.uv.active].uv.y -= ymin
+            vert[bm.loops.layers.uv.active].uv.x /= (xmax-xmin)
+            vert[bm.loops.layers.uv.active].uv.y /= (ymax-ymin)
 
         xmin2 = .5
         ymin2 = .5
@@ -69,12 +77,9 @@ class UVTransfer(bpy.types.Operator):
 
         #move to new rect
 
-        for i,face in enumerate(bm.faces):
-            if face.select:
-                for o,vert in enumerate(face.loops):
-                    if vert[bm.loops.layers.uv.active].select:
-                        vert[bm.loops.layers.uv.active].uv.x = (vert[bm.loops.layers.uv.active].uv.x * (context.scene.uvtransferxmax-context.scene.uvtransferxmin)) + context.scene.uvtransferxmin
-                        vert[bm.loops.layers.uv.active].uv.y = (vert[bm.loops.layers.uv.active].uv.y * (context.scene.uvtransferymax-context.scene.uvtransferymin)) + context.scene.uvtransferymin
+        for vert in selected_uv_loops:
+            vert[bm.loops.layers.uv.active].uv.x = (vert[bm.loops.layers.uv.active].uv.x * (context.scene.uvtransferxmax-context.scene.uvtransferxmin)) + context.scene.uvtransferxmin
+            vert[bm.loops.layers.uv.active].uv.y = (vert[bm.loops.layers.uv.active].uv.y * (context.scene.uvtransferymax-context.scene.uvtransferymin)) + context.scene.uvtransferymin
 
                 
         bmesh.update_edit_mesh(obj.data)
@@ -102,27 +107,38 @@ class UVTransferGrab(bpy.types.Operator):
 
         
 
-        first = True
+        selected_uv_loops = list()
+
         for i,face in enumerate(bm.faces):
             if face.select:
                 for o,vert in enumerate(face.loops):
                     if vert[bm.loops.layers.uv.active].select:
-                        if first:
-                            xmin=vert[bm.loops.layers.uv.active].uv.x
-                            xmax=vert[bm.loops.layers.uv.active].uv.x
-                            ymin=vert[bm.loops.layers.uv.active].uv.y
-                            ymax=vert[bm.loops.layers.uv.active].uv.y
-                            first=False
-                        else:
-                            if vert[bm.loops.layers.uv.active].uv.x < xmin:
-                                xmin=vert[bm.loops.layers.uv.active].uv.x
-                            elif vert[bm.loops.layers.uv.active].uv.x > xmax:
-                                xmax=vert[bm.loops.layers.uv.active].uv.x
-                            if vert[bm.loops.layers.uv.active].uv.y < ymin:
-                                ymin=vert[bm.loops.layers.uv.active].uv.y
-                            elif vert[bm.loops.layers.uv.active].uv.y > ymax:
-                                ymax=vert[bm.loops.layers.uv.active].uv.y
+                        selected_uv_loops.append(vert)
 
+        #if nothing is selected, match UV selection to mesh selection
+
+        if len(selected_uv_loops) == 0:
+            for i,face in enumerate(bm.faces):
+                if face.select:
+                    selected_uv_loops.extend(face.loops)
+
+        first = True
+        for vert in selected_uv_loops:
+            if first:
+                xmin=vert[bm.loops.layers.uv.active].uv.x
+                xmax=vert[bm.loops.layers.uv.active].uv.x
+                ymin=vert[bm.loops.layers.uv.active].uv.y
+                ymax=vert[bm.loops.layers.uv.active].uv.y
+                first=False
+            else:
+                if vert[bm.loops.layers.uv.active].uv.x < xmin:
+                    xmin=vert[bm.loops.layers.uv.active].uv.x
+                elif vert[bm.loops.layers.uv.active].uv.x > xmax:
+                    xmax=vert[bm.loops.layers.uv.active].uv.x
+                if vert[bm.loops.layers.uv.active].uv.y < ymin:
+                    ymin=vert[bm.loops.layers.uv.active].uv.y
+                elif vert[bm.loops.layers.uv.active].uv.y > ymax:
+                    ymax=vert[bm.loops.layers.uv.active].uv.y
 
 
         context.scene.uvtransferxmax = xmax
