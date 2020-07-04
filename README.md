@@ -62,6 +62,8 @@ For the hotspotting tool to work correctly, an atlas needs to be created. This i
 ![screenshot](http://www.brameulaers.net/blender/addons/github_images/dreamuv_atlas.jpg)
 This is just one example layout, any layout should work.
 
+Keep in mind to scale the atlas geometry to a similar scale you want to uv's to be applied to your final mesh. Also make sure that the atlas object scale is set to 1 to make sure the sizes are transferred correctly.
+
 To hotspot a mesh, simply select the faces you want to hotspot and click the hotspot button. Clicking multiple times will make the tool cycle through different variations and uv placement. The mesh will be split into multiple uv islands that are hotspotted individually, using hard edges and seams. Its highly recommended to place extra seams manually to guide the tool and try to divide up your geometry into rectangular patches.
 ![screenshot](http://www.brameulaers.net/blender/addons/github_images/dreamuv_hotspot.jpg)
 
