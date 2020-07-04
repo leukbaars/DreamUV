@@ -56,9 +56,9 @@ The **UV Transfer Tool** allows you to essentially copy paste a uv to a differen
 
 ## Hotspotting:
 
-Hotspotting is a technique to quickly assign uv's to UV islands by referencing a predefined uv atlas. The DreamUV hotspot tool will attempt it's best to find an appropriate sized rectangle on the atlas and fit it to the mesh geometry.
+Hotspotting is a technique to quickly assign uv's to UV islands by referencing a predefined uv atlas. The DreamUV hotspot tool will attempt its best to find an appropriate sized rectangle on the atlas and fit it to the mesh geometry.
 
-For the hotspotting too to work correctly, an atlas needs to be created. This is simply a mesh consisting of a variety of different sized rectangles. For example:
+For the hotspotting tool to work correctly, an atlas needs to be created. This is simply a mesh consisting of a variety of different sized rectangles. For example:
 ![screenshot](http://www.brameulaers.net/blender/addons/github_images/dreamuv_atlas.jpg)
 This is just one example layout, any layout should work.
 
