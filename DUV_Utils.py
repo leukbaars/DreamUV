@@ -80,19 +80,21 @@ def read_atlas(context):
         new_subrect.uvcoord = rect
         
         #calculate aspect ratio
-        aspect = edge1/edge2
-        if aspect > 1:
-            aspect = round(aspect)
-        else:
-            aspect = 1/(round(1/aspect))
-        #calculate size
-        size = face.calc_area()
-        size = float('%.2g' % size) #round to 2 significant digits
+        if edge1 > 0 and edge2 > 0:
+
+            aspect = edge1/edge2
+            if aspect > 1:
+                aspect = round(aspect)
+            else:
+                aspect = 1/(round(1/aspect))
+            #calculate size
+            size = face.calc_area()
+            size = float('%.2g' % size) #round to 2 significant digits
 
 
-        new_subrect.aspect = aspect
-        new_subrect.size = size
-        atlas.append(new_subrect)   
+            new_subrect.aspect = aspect
+            new_subrect.size = size
+            atlas.append(new_subrect)   
     return atlas
 
 
