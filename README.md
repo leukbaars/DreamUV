@@ -1,7 +1,9 @@
 # DreamUV
 
 ## About
-This script will add the ability to translate, scale and rotate UV coordinates directly in the 3D Viewport. It should be very useful for 3D artists who find themselves working often with tiling textures that don't require a clean UV layout.
+DreamUV is a collection of tools that allow you to manipulate UVs in the 3D viewport. This toolset is designed to be used with reusable textures liek tiling textures, trimsheets and texture atlases. Its intent is to allow you to texture your geometry without having to exit the 3D view, saving you time and improving flexibility.
+
+![screenshot](http://www.brameulaers.net/blender/addons/github_images/dreamuv_header.jpg)
 
 ## Installation
 
