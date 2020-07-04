@@ -10,12 +10,12 @@
 #-draw on screen handles that fit with Blender's transform tools
 
 bl_info = {
-    "name": "DUV UVTools",
-    "category": "Mesh",
+    "name": "DreamUV",
+    "category": "UV",
     "author": "Bram Eulaers",
     "description": "Edit selected faces'UVs directly inside the 3D Viewport. WIP. Check for updates @leukbaars",
     "blender": (2, 80, 0),
-    "version": (0, 7)
+    "version": (0, 8)
 }
 
 if 'bpy' not in locals():
@@ -73,21 +73,21 @@ class DUVUVToolsPreferences(bpy.types.AddonPreferences):
         default=True
     )
 
-    adduvmenu = BoolProperty(name="Add DUV UVTools to UV Menu", default=True)
-    individualorsubmenu = EnumProperty(name="Individual or Sub-Menu", items=uvmenutype, default="SUBMENU")
+    #adduvmenu = BoolProperty(name="Add DUV UVTools to UV Menu", default=True)
+    #individualorsubmenu = EnumProperty(name="Individual or Sub-Menu", items=uvmenutype, default="SUBMENU")
 
     def draw(self, context):
         layout = self.layout
 
-        column = layout.column(align=True)
+        #column = layout.column(align=True)
 
-        row = column.row()
-        row.prop(self, "adduvmenu")
-        if self.adduvmenu:
-            row.prop(self, "individualorsubmenu", expand=True)
+        #row = column.row()
+        #row.prop(self, "adduvmenu")
+        #if self.adduvmenu:
+        #    row.prop(self, "individualorsubmenu", expand=True)
 
-        column.prop(self, "show_panel_tools")
-        column.prop(self, "pixel_snap")
+        #column.prop(self, "show_panel_tools")
+        #column.prop(self, "pixel_snap")
 
 
 class DUV_UVPanel(bpy.types.Panel):
