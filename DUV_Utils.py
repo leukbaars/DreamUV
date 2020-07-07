@@ -38,7 +38,42 @@ def get_face_pixel_step(context, face):
     pixel_step = Vector((1 / target_img.size[0], 1 / target_img.size[1]))
     return pixel_step
 
+def get_uv_ratio(context):
+    #this code is terrible, someone who knows math make this better, thanks
+    obj = bpy.context.view_layer.objects.active
+    bm = bmesh.from_edit_mesh(obj.data)
+    uv_layer = bm.loops.layers.uv.verify()
+    faces = list()
+    #MAKE FACE LIST
+    for face in bm.faces:
+        if face.select:
+            faces.append(face)
+    backupfaces = list()
+    for f in faces:
+        backupface = list()
+        for loop in f.loops:
+            loop_uv = loop[uv_layer]
+            backupvert = list()
+            backupvert.append(loop.vert.co.x)
+            backupvert.append(loop.vert.co.y)
+            backupvert.append(loop.vert.co.z)
+            backupface.append(backupvert)
+        backupfaces.append(backupface)
+    for f in faces:
+        for loop in f.loops:
+            loop_uv = loop[uv_layer]
+            loop.vert.co.xy = loop_uv.uv
+            loop.vert.co.z = 0 
+    size = area = sum(f.calc_area() for f in faces if f.select)
 
+    #return shape:
+    for f, backupface in zip(faces, backupfaces):
+        for loop, backupvert in zip(f.loops, backupface):
+            loop.vert.co.x = backupvert[0]
+            loop.vert.co.y = backupvert[1]
+            loop.vert.co.z = backupvert[2]
+    #bmesh.update_edit_mesh(obj.data)
+    return size
 
 def read_atlas(context):
     atlas = list()
@@ -227,6 +262,65 @@ def square_fit(context):
     if NCount > 4:
         distorted = True
 
+    #now find top 4 angles
+    topangles = list()
+    for o in range(4):
+        top = 360
+        topindex = -1
+        for i in range(len(sorted_angle_list)):
+            if sorted_angle_list[i] < top:
+                top = sorted_angle_list[i]
+                topindex = i
+        #print(sorted_angle_list[topindex])
+        
+        if o is 3:
+            if sorted_angle_list[topindex] > 120:
+                distorted = True
+
+        topangles.append(topindex)
+        sorted_angle_list[topindex] = 999 #lol
+
+    sorted_corner_list = list()
+    for i in range(len(sorted_uv_list)):
+        sorted_corner_list.append(False)
+    sorted_corner_list[topangles[0]] = True
+    sorted_corner_list[topangles[1]] = True
+    sorted_corner_list[topangles[2]] = True
+    sorted_corner_list[topangles[3]] = True
+
+    #find bottom left corner (using distance method seems to work well)
+    distance = 2
+    closest = 0
+    for t in topangles:
+        l = sorted_uv_list[t].uv.length
+        if l < distance:
+            distance = l
+            closest = t
+
+    #rotate lists to get clostest corner at start:
+    for i in range(closest):
+        sorted_corner_list.append(sorted_corner_list.pop(0))
+        sorted_uv_list.append(sorted_uv_list.pop(0))
+        sorted_vert_list.append(sorted_vert_list.pop(0))
+
+    sorted_edge_ratios = list()
+
+    #get edge lenghts
+    edge = list()
+    for i in range(len(sorted_vert_list)):
+        if sorted_corner_list[i] is True:
+            sorted_edge_ratios.append(0)
+            if i is not 0:
+                l = (sorted_vert_list[i-1].co.xyz - sorted_vert_list[i].co.xyz).length
+                edge.append(sorted_edge_ratios[i-1] + l)
+            
+        if sorted_corner_list[i] is False:
+            l = (sorted_vert_list[i-1].co.xyz - sorted_vert_list[i].co.xyz).length
+            sorted_edge_ratios.append(sorted_edge_ratios[i-1] + l)
+        if i is (len(sorted_vert_list)-1):
+            l = (sorted_vert_list[i].co.xyz - sorted_vert_list[0].co.xyz).length
+            edge.append(sorted_edge_ratios[i] + l)
+
     
     if quadmethod: 
     #MAP FIRST QUAD
@@ -247,69 +341,68 @@ def square_fit(context):
         #UNWRAP ADJACENT
         bmesh.update_edit_mesh(obj.data)
         bpy.ops.uv.follow_active_quads()
-        #print("quading it")
+        obj = bpy.context.view_layer.objects.active
+        bm = bmesh.from_edit_mesh(obj.data)
+        uv_layer = bm.loops.layers.uv.verify()
+
+        #return
+        edge1 = (edge[0]+edge[2])*.5
+        edge2 = (edge[1]+edge[3])*.5
+
+        #FIT TO 0-1 range
+        xmin, xmax = faces[0].loops[0][uv_layer].uv.x, faces[0].loops[0][uv_layer].uv.x
+        ymin, ymax = faces[0].loops[0][uv_layer].uv.y, faces[0].loops[0][uv_layer].uv.y
+
+        for face in faces: 
+            for vert in face.loops:
+                xmin = min(xmin, vert[uv_layer].uv.x)
+                xmax = max(xmax, vert[uv_layer].uv.x)
+                ymin = min(ymin, vert[uv_layer].uv.y)
+                ymax = max(ymax, vert[uv_layer].uv.y)
+
+        #return
+
+        #prevent divide by 0:
+        if (xmax - xmin) == 0:
+            xmin = .1
+        if (ymax - ymin) == 0:
+            ymin = .1
+
+        for face in faces:
+            for loop in face.loops:
+                loop[uv_layer].uv.x -= xmin
+                loop[uv_layer].uv.y -= ymin
+                loop[uv_layer].uv.x /= (xmax-xmin)
+                loop[uv_layer].uv.y /= (ymax-ymin)
+        
+        #shift extents to be positive only:
+        xmax = xmax - xmin
+        ymax = ymax - ymin
+
+        #now fit to correct edge lengths:
+        if (edge1 < edge2):
+            #flip them:
+            tedge = edge1
+            edge1 = edge2
+            edge2 = tedge
+        
+        if xmax >= ymax:
+            for face in faces:
+                for loop in face.loops:
+                    loop[uv_layer].uv.x *= edge1
+                    loop[uv_layer].uv.y *= edge2
+        if xmax < ymax:
+            for face in faces:
+                for loop in face.loops:
+                    loop[uv_layer].uv.x *= edge2
+                    loop[uv_layer].uv.y *= edge1
+
+        bmesh.update_edit_mesh(obj.data)
 
 
     if quadmethod is False:
 
-        #now find top 4 angles
-        topangles = list()
-        for o in range(4):
-            top = 360
-            topindex = -1
-            for i in range(len(sorted_angle_list)):
-                if sorted_angle_list[i] < top:
-                    top = sorted_angle_list[i]
-                    topindex = i
-            #print(sorted_angle_list[topindex])
-            
-            if o is 3:
-                if sorted_angle_list[topindex] > 120:
-                    distorted = True
-
-            topangles.append(topindex)
-            sorted_angle_list[topindex] = 999 #lol
-
-        sorted_corner_list = list()
-        for i in range(len(sorted_uv_list)):
-            sorted_corner_list.append(False)
-        sorted_corner_list[topangles[0]] = True
-        sorted_corner_list[topangles[1]] = True
-        sorted_corner_list[topangles[2]] = True
-        sorted_corner_list[topangles[3]] = True
-
-        #find bottom left corner (using distance method seems to work well)
-        distance = 2
-        closest = 0
-        for t in topangles:
-            l = sorted_uv_list[t].uv.length
-            if l < distance:
-                distance = l
-                closest = t
-
-        #rotate lists to get clostest corner at start:
-        for i in range(closest):
-            sorted_corner_list.append(sorted_corner_list.pop(0))
-            sorted_uv_list.append(sorted_uv_list.pop(0))
-            sorted_vert_list.append(sorted_vert_list.pop(0))
-
-        sorted_edge_ratios = list()
-
-        #get edge lenghts
-        edge = list()
-        for i in range(len(sorted_vert_list)):
-            if sorted_corner_list[i] is True:
-                sorted_edge_ratios.append(0)
-                if i is not 0:
-                    l = (sorted_vert_list[i-1].co.xyz - sorted_vert_list[i].co.xyz).length
-                    edge.append(sorted_edge_ratios[i-1] + l)
-                
-            if sorted_corner_list[i] is False:
-                l = (sorted_vert_list[i-1].co.xyz - sorted_vert_list[i].co.xyz).length
-                sorted_edge_ratios.append(sorted_edge_ratios[i-1] + l)
-            if i is (len(sorted_vert_list)-1):
-                l = (sorted_vert_list[i].co.xyz - sorted_vert_list[0].co.xyz).length
-                edge.append(sorted_edge_ratios[i] + l)
+        
 
         if distorted is False:
             #NOW LAY OUT ALL EDGE UVs
@@ -365,6 +458,7 @@ def square_fit(context):
 
         bmesh.update_edit_mesh(me, True)
         bpy.ops.uv.select_all(action='SELECT')
+        #expand middle verts
         bpy.ops.uv.minimize_stretch(iterations=100)   
         #return true if rect fit was succesful
         return not distorted     

@@ -13,6 +13,12 @@ class HotSpotter(bpy.types.Operator):
     bl_options = {"UNDO"}
 
     def execute(self, context):
+        #Check if an atlas object exists
+        if bpy.data.objects.get(context.scene.subrect_atlas) is None:
+            self.report({'WARNING'}, "No valid atlas selected!")
+            return {'FINISHED'}
+
+
         #PREPROCESS - save seams and hard edges
         obj = bpy.context.view_layer.objects.active
         bm = bmesh.from_edit_mesh(obj.data)
@@ -160,6 +166,8 @@ class HotSpotter(bpy.types.Operator):
                 bmesh.update_edit_mesh(obj.data)
                 bpy.ops.uv.unwrap(method='CONFORMAL', margin=0.001)
 
+                #print("do proper size check")
+
                 obj = bpy.context.view_layer.objects.active
                 bm = bmesh.from_edit_mesh(obj.data)
                 uv_layer = bm.loops.layers.uv.verify()
@@ -195,18 +203,18 @@ class HotSpotter(bpy.types.Operator):
 
             #size = edge1*edge2
             size = area = sum(f.calc_area() for f in HSfaces if f.select)
-            #TO BE ADDED: check empty spaces on QUAD and add those in
-
+            #print(size)
+            
+            if is_rect is False:
+                #calulate ratio empty vs full
+                size = size / DUV_Utils.get_uv_ratio(context) 
 
             if aspect > 1:
                 aspect = round(aspect)
             else:
                 aspect = 1/(round(1/aspect))
 
-            #bmesh.update_edit_mesh(obj.data)
-            #print(size)
             #print(aspect)
-            #return {'FINISHED'}
 
             #ASPECT LOWER THAN 1.0 = TALL
             #ASPECT HIGHER THAN 1.0 = WIDE
@@ -230,12 +238,8 @@ class HotSpotter(bpy.types.Operator):
                     aspectbucket.append(r)
                 if r.aspect == 1/atlas[tempindex].aspect:
                     aspectbucket.append(r)
-
-
-                #    flipped = True
         
             #find closest size in bucket:
-
             index = 0
 
             templength = abs(aspectbucket[0].size-size)
@@ -249,12 +253,6 @@ class HotSpotter(bpy.types.Operator):
                     tempindex = index
                 index += 1
             
-            #ANOTHER METHOD:
-            # find closest size
-            #print("closest:")
-            #print(aspectbucket[tempindex].size)
-            # find duplicates
-
             index = 0
             for a in aspectbucket:
                 if a.size == aspectbucket[tempindex].size:
@@ -266,9 +264,6 @@ class HotSpotter(bpy.types.Operator):
             tempindex = random.choice(validrects)
 
             #test if coords are already asigned by comparing minmaxes, then try again
-
-
-            
 
             #2 assign uv
             #get minmax of target rect
