@@ -5,10 +5,6 @@
 #Bram Eulaers
 #Jeiel Aranal (added pixel snapping!)
 
-#   TODO
-#-precision mode for rotation
-#-draw on screen handles that fit with Blender's transform tools
-
 bl_info = {
     "name": "DreamUV",
     "category": "UV",
@@ -206,7 +202,7 @@ class DUV_UVPanel(bpy.types.Panel):
         row.prop(context.scene, "uvtransferxmax", text="")
         row.prop(context.scene, "uvtransferymax", text="")
 
-        col.operator("uv.duv_uvtransfergrab", text="Grab UV from selection")
+        col.operator("uv.duv_uvtransfergrab", text="Grab UV from selection", icon="FILE_TICK")
         row = col.row(align = True)
         row.operator("uv.duv_uvtransfer", text="Transfer to selection", icon="MOD_UVPROJECT")
         #col.label(text="top right coord:")
@@ -233,42 +229,6 @@ class DUV_UVPanel(bpy.types.Panel):
         col2.enabled = False
         col2.label(text="send feedback to @leukbaars!")
         #col.operator("DUV.uvproject", text = "PROJECT!")
-
-#class DUV_UVMenu(bpy.types.Menu):
-#    bl_label = "DUV UV Tools"
-#    
-#    
-#   def draw(self, context):
-#       layout = self.layout
-#
-#        col = layout.column()
-#        col.operator("uv.duv_uvtranslate", text="UVTranslate", icon="MAN_TRANS")
-#        col.operator("uv.duv_uvrotate", text="UVRotate", icon="MAN_ROT")
-#        col.operator("uv.duv_uvscale", text="UVScale", icon="MAN_SCALE")
-#        col.operator("uv.duv_uvextend", text="UVExtend", icon="MOD_SHRINKWRAP")
-#        col.operator("uv.duv_uvstitch", text="UVStitch", icon="MOD_TRIANGULATE")
-#        col.operator("uv.duv_uvtransfer", text="Transfer", icon="MOD_UVPROJECT")
-#        col.operator("uv.duv_uvcycle", text="Transfer", icon="MOD_UVPROJECT")
-
-
-#def uv_menu_func(self, context):
-#    if prefs().adduvmenu:
-#        if prefs().individualorsubmenu == "SUBMENU":
-#            self.layout.menu("DUV_UVMenu")
-#        else:
-#            layout = self.layout
-#
-#            col = layout.column()
-#            col.operator_context = 'INVOKE_DEFAULT'
-#            col.operator("uv.duv_uvtranslate", text="UVTranslate", icon="MAN_TRANS")
-#            col.operator("uv.duv_uvrotate", text="UVRotate", icon="MAN_ROT")
-#            col.operator("uv.duv_uvscale", text="UVScale", icon="MAN_SCALE")
-#            col.operator("uv.duv_uvextend", text="UVExtend", icon="MOD_SHRINKWRAP")
-#            col.operator("uv.duv_uvstitch", text="UVStitch", icon="MOD_TRIANGULATE")
-#            col.operator("uv.duv_uvtransfer", text="Transfer", icon="MOD_UVPROJECT")
-#            col.operator("uv.duv_uvcycle", text="Transfer", icon="MOD_UVPROJECT")
-
-#        self.layout.separator()
 
 
 def prefs():
@@ -310,18 +270,22 @@ def register():
     bpy.types.Scene.uvtransferxmin = bpy.props.FloatProperty (
         name = "uvtransferxmin",
         default = 0.0,
+        description = "uv left bottom corner X",
         )
     bpy.types.Scene.uvtransferymin = bpy.props.FloatProperty (
         name = "uvtransferymin",
         default = 0.0,
+        description = "uv left bottom corner Y",
         )
     bpy.types.Scene.uvtransferxmax = bpy.props.FloatProperty (
         name = "uvtransferxmax",
         default = 1.0,
+        description = "uv right top corner X",
         )
     bpy.types.Scene.uvtransferymax = bpy.props.FloatProperty (
         name = "uvtransferymax",
         default = 1.0,
+        description = "uv right top corner Y",
         )  
 
 
