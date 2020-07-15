@@ -220,7 +220,7 @@ class DUV_UVPanel(bpy.types.Panel):
         row.label(text="Atlas Object:")
         row.prop_search(context.scene, "subrect_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
         col.separator()
-        col.operator("duv.hotspotter", text = "HotSpot", icon="SHADERFX")
+        col.operator("uv.duv_hotspotter", text="HotSpot", icon="SHADERFX")
 
         col = self.layout.column(align = True)
         #col.enabled = True

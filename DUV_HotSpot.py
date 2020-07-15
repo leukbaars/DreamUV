@@ -8,8 +8,8 @@ from . import DUV_Utils
 
 class HotSpotter(bpy.types.Operator):
     """Unwrap selection using the atlas object as a guide"""
-    bl_idname = "duv.hotspotter"
-    bl_label = "hotspot these bad boyz"
+    bl_idname = "uv.duv_hotspotter"
+    bl_label = "hotspot"
     bl_options = {"UNDO"}
 
     def execute(self, context):
