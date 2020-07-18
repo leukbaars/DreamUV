@@ -207,28 +207,48 @@ class HotSpotter(bpy.types.Operator):
             
             if is_rect is False:
                 #calulate ratio empty vs full
-                size = size / DUV_Utils.get_uv_ratio(context) 
+                sizeratio = DUV_Utils.get_uv_ratio(context)
+                #prevent divide by 0:
+                if sizeratio == 0:
+                    sizeratio = 1.0
+                size = size / sizeratio 
+
+            
 
             if aspect > 1:
                 aspect = round(aspect)
             else:
                 aspect = 1/(round(1/aspect))
 
-            #print(aspect)
-
             #ASPECT LOWER THAN 1.0 = TALL
             #ASPECT HIGHER THAN 1.0 = WIDE
 
             #find closest aspect ratio in list
+
+            #2 variations depending on tall or wide
+            
             index = 0
-            templength = abs(atlas[0].aspect-aspect)
+            templength = abs(atlas[0].posaspect-aspect)
             tempindex = 0
-            for number in atlas:
-                testlength = abs(number.aspect-aspect) 
-                if testlength < templength:
-                    templength = testlength
-                    tempindex = index
-                index += 1
+
+            #wide:
+            if aspect >= 1.0:
+                for number in atlas:
+                    testlength = abs(number.posaspect-aspect) 
+                    if testlength < templength:
+                        templength = testlength
+                        tempindex = index
+                    index += 1
+            
+            #tall:
+            if aspect < 1.0:
+                templength = abs((atlas[0].posaspect)-(1/aspect))
+                for number in atlas:
+                    testlength = abs((number.posaspect)-(1/aspect)) 
+                    if testlength < templength:
+                        templength = testlength
+                        tempindex = index
+                    index += 1
 
             #NOW MAKE LIST OF ASPECTS!
             flipped = False
@@ -238,7 +258,7 @@ class HotSpotter(bpy.types.Operator):
                     aspectbucket.append(r)
                 if r.aspect == 1/atlas[tempindex].aspect:
                     aspectbucket.append(r)
-        
+
             #find closest size in bucket:
             index = 0
 

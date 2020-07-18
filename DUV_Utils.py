@@ -122,12 +122,17 @@ def read_atlas(context):
                 aspect = round(aspect)
             else:
                 aspect = 1/(round(1/aspect))
+                #aspect = 1/aspect
+            posaspect = aspect
+            if posaspect < 1.0:
+                posaspect = 1/posaspect
             #calculate size
             size = face.calc_area()
             size = float('%.2g' % size) #round to 2 significant digits
 
 
             new_subrect.aspect = aspect
+            new_subrect.posaspect = posaspect
             new_subrect.size = size
             atlas.append(new_subrect)   
     return atlas
@@ -466,6 +471,7 @@ def square_fit(context):
 
 class subrect:
     aspect = int()
+    posaspect = int()
     size = float()
     uvcoord = list()
 
