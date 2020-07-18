@@ -14,7 +14,7 @@ class HotSpotter(bpy.types.Operator):
 
     def execute(self, context):
         #Check if an atlas object exists
-        if bpy.data.objects.get(context.scene.subrect_atlas) is None:
+        if context.scene.subrect_atlas is None:
             self.report({'WARNING'}, "No valid atlas selected!")
             return {'FINISHED'}
 
