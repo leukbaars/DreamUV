@@ -16,7 +16,7 @@ bl_info = {
 
 if 'bpy' not in locals():
     import bpy
-    from bpy.props import EnumProperty, BoolProperty, FloatProperty
+    from bpy.props import EnumProperty, BoolProperty, FloatProperty, PointerProperty
     from . import DUV_UVTranslate, DUV_UVRotate, DUV_UVScale, DUV_UVExtend, DUV_UVStitch, DUV_UVTransfer, DUV_UVCycle, DUV_UVMirror, DUV_UVMoveToEdge,DUV_Utils,DUV_HotSpot,DUV_UVProject,DUV_UVUnwrap
 else:
     from importlib import reload
@@ -262,10 +262,10 @@ def register():
     #if prefs().adduvmenu:
     #    bpy.types.VIEW3D_MT_uv_map.prepend(uv_menu_func)
     
-    bpy.types.Scene.subrect_atlas = bpy.props.StringProperty (
-        name = "atlas",
-        default = "hotspot atlas object",
-        description = "atlas object",
+    bpy.types.Scene.subrect_atlas = bpy.props.PointerProperty (
+        name="atlas",
+        type=bpy.types.Object,
+        description="atlas object",
         )
     bpy.types.Scene.uvtransferxmin = bpy.props.FloatProperty (
         name = "uvtransferxmin",

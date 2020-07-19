@@ -77,7 +77,7 @@ def get_uv_ratio(context):
 
 def read_atlas(context):
     atlas = list()
-    obj = bpy.data.objects.get(context.scene.subrect_atlas)
+    obj = context.scene.subrect_atlas
     me = obj.data
     bm = bmesh.new()
     bm.from_mesh(me)
