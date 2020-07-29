@@ -72,8 +72,8 @@ class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     #adduvmenu = BoolProperty(name="Add DUV UVTools to UV Menu", default=True)
     #individualorsubmenu = EnumProperty(name="Individual or Sub-Menu", items=uvmenutype, default="SUBMENU")
 
-    def draw(self, context):
-        layout = self.layout
+    #def draw(self, context):
+        #layout = self.layout
 
         #column = layout.column(align=True)
 
@@ -85,8 +85,8 @@ class DUVUVToolsPreferences(bpy.types.AddonPreferences):
         #column.prop(self, "show_panel_tools")
         #column.prop(self, "pixel_snap")
 
-
-class DUV_UVPanel(bpy.types.Panel):
+# This should get its own py file
+class DREAMUV_PT_uv(bpy.types.Panel):
     """DreamUV Tools Panel Test!"""
     bl_label = "DreamUV"
     bl_space_type = 'VIEW_3D'
@@ -99,8 +99,8 @@ class DUV_UVPanel(bpy.types.Panel):
         prefs = bpy.context.preferences.addons[__name__].preferences
         return prefs.show_panel_tools
 
-    def draw_header(self, _):
-        layout = self.layout
+    #def draw_header(self, _):
+        #layout = self.layout
         #layout.label(text="", icon='FACESEL_HLT')
 
     def draw(self, context):
@@ -110,57 +110,57 @@ class DUV_UVPanel(bpy.types.Panel):
         col = box.column(align=True)
         col.label(text="Viewport UV Tools:")
         row = col.row(align = True)
-        row.operator("uv.duv_uvtranslate", text="Move", icon="UV_SYNC_SELECT")
+        row.operator("dream_uv.uvtranslate", text="Move", icon="UV_SYNC_SELECT")
         row = row.row(align = True)
         row.prop(addon_prefs, 'move_snap', text="")
 
         row = col.row(align = True)
-        op = row.operator("uv.duv_uvtranslatestep", text=" ", icon="TRIA_UP")
+        op = row.operator("dream_uv.uvtranslatestep", text=" ", icon="TRIA_UP")
         op.direction="up"
-        op = row.operator("uv.duv_uvtranslatestep", text=" ", icon="TRIA_DOWN")
+        op = row.operator("dream_uv.uvtranslatestep", text=" ", icon="TRIA_DOWN")
         op.direction="down"
-        op = row.operator("uv.duv_uvtranslatestep", text=" ", icon="TRIA_LEFT")
+        op = row.operator("dream_uv.uvtranslatestep", text=" ", icon="TRIA_LEFT")
         op.direction = "left"
-        op = row.operator("uv.duv_uvtranslatestep", text=" ", icon="TRIA_RIGHT")
+        op = row.operator("dream_uv.uvtranslatestep", text=" ", icon="TRIA_RIGHT")
         op.direction = "right"
         col.separator()
 
         row = col.row(align = True)
-        row.operator("uv.duv_uvscale", text="Scale", icon="FULLSCREEN_ENTER")
+        row.operator("dream_uv.uvscale", text="Scale", icon="FULLSCREEN_ENTER")
         row = row.row(align = True)
         row.prop(addon_prefs, 'scale_snap', text="")
         row = col.row(align = True)
-        op = row.operator("uv.duv_uvscalestep", text=" ", icon="ADD")
+        op = row.operator("dream_uv.uvscalestep", text=" ", icon="ADD")
         op.direction="+XY"
-        op = row.operator("uv.duv_uvscalestep", text=" ", icon="REMOVE")
+        op = row.operator("dream_uv.uvscalestep", text=" ", icon="REMOVE")
         op.direction="-XY"
-        op = row.operator("uv.duv_uvscalestep", text="+X")
+        op = row.operator("dream_uv.uvscalestep", text="+X")
         op.direction = "+X"
-        op = row.operator("uv.duv_uvscalestep", text="-X")
+        op = row.operator("dream_uv.uvscalestep", text="-X")
         op.direction = "-X"
-        op = row.operator("uv.duv_uvscalestep", text="+Y")
+        op = row.operator("dream_uv.uvscalestep", text="+Y")
         op.direction = "+Y"
-        op = row.operator("uv.duv_uvscalestep", text="-Y")
+        op = row.operator("dream_uv.uvscalestep", text="-Y")
         op.direction = "-Y"
         col.separator()
 
         row = col.row(align = True)
-        row.operator("uv.duv_uvrotate", text="Rotate", icon="FILE_REFRESH")
+        row.operator("dream_uv.uvrotate", text="Rotate", icon="FILE_REFRESH")
         row = row.row(align = True)
         row.prop(addon_prefs, 'rotate_snap', text="")
         row = col.row(align = True)
-        op = row.operator("uv.duv_uvrotatestep", text=" ", icon="LOOP_FORWARDS")
+        op = row.operator("dream_uv.uvrotatestep", text=" ", icon="LOOP_FORWARDS")
         op.direction="forward"
-        op = row.operator("uv.duv_uvrotatestep", text=" ", icon="LOOP_BACK")
+        op = row.operator("dream_uv.uvrotatestep", text=" ", icon="LOOP_BACK")
         op.direction="reverse"
         col.separator()
-        col.operator("uv.duv_uvextend", text="Extend", icon="MOD_TRIANGULATE")
-        col.operator("uv.duv_uvstitch", text="Stitch", icon="UV_EDGESEL")
-        col.operator("uv.duv_uvcycle", text="Cycle", icon="FILE_REFRESH")
+        col.operator("dream_uv.uvextend", text="Extend", icon="MOD_TRIANGULATE")
+        col.operator("dream_uv.uvstitch", text="Stitch", icon="UV_EDGESEL")
+        col.operator("dream_uv.uvcycle", text="Cycle", icon="FILE_REFRESH")
         row = col.row(align = True)
-        op = row.operator("uv.duv_uvmirror", text="Mirror X", icon="MOD_MIRROR")
+        op = row.operator("dream_uv.uvmirror", text="Mirror X", icon="MOD_MIRROR")
         op.direction = "x"
-        op = row.operator("uv.duv_uvmirror", text="Mirror Y")
+        op = row.operator("dream_uv.uvmirror", text="Mirror Y")
         op.direction = "y"
 
         # pixel snap not functional in 2.8
@@ -171,13 +171,13 @@ class DUV_UVPanel(bpy.types.Panel):
         #col = box.column(align=True)
         col.label(text="Move to UV Edge:")
         row = col.row(align = True)
-        op = row.operator("uv.duv_uvmovetoedge", text=" ", icon="TRIA_UP_BAR")
+        op = row.operator("dream_uv.uvmovetoedge", text=" ", icon="TRIA_UP_BAR")
         op.direction="up"
-        op = row.operator("uv.duv_uvmovetoedge", text=" ", icon="TRIA_DOWN_BAR")
+        op = row.operator("dream_uv.uvmovetoedge", text=" ", icon="TRIA_DOWN_BAR")
         op.direction="down"
-        op = row.operator("uv.duv_uvmovetoedge", text=" ", icon="TRIA_LEFT_BAR")
+        op = row.operator("dream_uv.uvmovetoedge", text=" ", icon="TRIA_LEFT_BAR")
         op.direction = "left"
-        op = row.operator("uv.duv_uvmovetoedge", text=" ", icon="TRIA_RIGHT_BAR")
+        op = row.operator("dream_uv.uvmovetoedge", text=" ", icon="TRIA_RIGHT_BAR")
         op.direction = "right"
 
         box = layout.box()
@@ -185,7 +185,7 @@ class DUV_UVPanel(bpy.types.Panel):
 
 
         col.label(text="Unwrapping Tools:")
-        col.operator("uv.duv_uvunwrapsquare", text="Square Fit Unwrap", icon="OUTLINER_OB_LATTICE")
+        col.operator("dream_uv.uvunwrapsquare", text="Square Fit Unwrap", icon="OUTLINER_OB_LATTICE")
         unwraptool=col.operator("uv.unwrap", text="Blender Unwrap", icon='UV')
         unwraptool.method='CONFORMAL'
         unwraptool.margin=0.001
@@ -202,9 +202,9 @@ class DUV_UVPanel(bpy.types.Panel):
         row.prop(context.scene, "uvtransferxmax", text="")
         row.prop(context.scene, "uvtransferymax", text="")
 
-        col.operator("uv.duv_uvtransfergrab", text="Grab UV from selection", icon="FILE_TICK")
+        col.operator("dream_uv.uvtransfergrab", text="Grab UV from selection", icon="FILE_TICK")
         row = col.row(align = True)
-        row.operator("uv.duv_uvtransfer", text="Transfer to selection", icon="MOD_UVPROJECT")
+        row.operator("dream_uv.uvtransfer", text="Transfer to selection", icon="MOD_UVPROJECT")
         #col.label(text="top right coord:")
         #row = col.row(align = True)
         
@@ -220,7 +220,7 @@ class DUV_UVPanel(bpy.types.Panel):
         row.label(text="Atlas Object:")
         row.prop_search(context.scene, "subrect_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
         col.separator()
-        col.operator("uv.duv_hotspotter", text="HotSpot", icon="SHADERFX")
+        col.operator("dream_uv.hotspotter", text="HotSpot", icon="SHADERFX")
 
         col = self.layout.column(align = True)
         #col.enabled = True
@@ -236,23 +236,23 @@ def prefs():
 
 classes = (
     DUVUVToolsPreferences,
-    DUV_UVPanel,
-    DUV_UVTranslate.UVTranslate,
-    DUV_UVTranslate.UVTranslateStep,
-    DUV_UVRotate.UVRotate,
-    DUV_UVRotate.UVRotateStep,
-    DUV_UVScale.UVScale,
-    DUV_UVScale.UVScaleStep,
-    DUV_UVExtend.UVExtend,
-    DUV_UVStitch.UVStitch,
-    DUV_UVTransfer.UVTransfer,
-    DUV_UVTransfer.UVTransferGrab,
-    DUV_UVCycle.UVCycle,
-    DUV_UVMirror.UVMirror,
-    DUV_UVMoveToEdge.UVMoveToEdge,
-    DUV_UVProject.UVProject,
-    DUV_UVUnwrap.UVUnwrapSquare,
-    DUV_HotSpot.HotSpotter,
+    DREAMUV_PT_uv,
+    DUV_UVTranslate.DREAMUV_OT_uv_translate,
+    DUV_UVTranslate.DREAMUV_OT_uv_translate_step,
+    DUV_UVRotate.DREAMUV_OT_uv_rotate,
+    DUV_UVRotate.DREAMUV_OT_uv_rotate_step,
+    DUV_UVScale.DREAMUV_OT_uv_scale,
+    DUV_UVScale.DREAMUV_OT_uv_scale_step,
+    DUV_UVExtend.DREAMUV_OT_uv_extend,
+    DUV_UVStitch.DREAMUV_OT_uv_stitch,
+    DUV_UVTransfer.DREAMUV_OT_uv_transfer,
+    DUV_UVTransfer.DREAMUV_OT_uv_transfer_grab,
+    DUV_UVCycle.DREAMUV_OT_uv_cycle,
+    DUV_UVMirror.DREAMUV_OT_uv_mirror,
+    DUV_UVMoveToEdge.DREAMUV_OT_uv_move_to_edge,
+    DUV_UVProject.DREAMUV_OT_uv_project,
+    DUV_UVUnwrap.DREAMUV_OT_uv_unwrap_square,
+    DUV_HotSpot.DREAMUV_OT_hotspotter,
 )
 
 def register():
