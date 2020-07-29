@@ -87,7 +87,7 @@ class DREAMUV_OT_uv_transfer(bpy.types.Operator):
 
         #cycle if needed:
         if (aspect >= 1 and aspecttarget < 1) or (aspect <= 1 and aspecttarget > 1):
-            bpy.ops.uv.duv_uvcycle()
+            bpy.ops.dream_uv.uvcycle()
         return {'FINISHED'}
 
 class DREAMUV_OT_uv_transfer_grab(bpy.types.Operator):

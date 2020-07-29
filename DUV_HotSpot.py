@@ -356,15 +356,15 @@ class DREAMUV_OT_hotspotter(bpy.types.Operator):
             if aspect == 1:
                 flips = random.randint(0, 3)
                 for x in range(flips):
-                    bpy.ops.uv.duv_uvcycle()
+                    bpy.ops.dream_uv.uvcycle()
             
             #and also do randomized mirroring:
             randomMirrorX = random.randint(0, 1)
             if randomMirrorX == 1:
-                op = bpy.ops.uv.duv_uvmirror(direction = "x")
+                op = bpy.ops.dream_uv.uvmirror(direction = "x")
             randomMirrorY = random.randint(0, 1)
             if randomMirrorY == 1:
-                op = bpy.ops.uv.duv_uvmirror(direction = "y")
+                op = bpy.ops.dream_uv.uvmirror(direction = "y")
 
             
                 #now if it flipped to original position, flip it an extra time
