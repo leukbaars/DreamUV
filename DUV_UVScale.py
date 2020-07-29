@@ -3,10 +3,10 @@ import bmesh
 import math
 
 
-class UVScale(bpy.types.Operator):
+class DREAMUV_OT_uv_scale(bpy.types.Operator):
     """Scale UVs in the 3D Viewport"""
-    bl_idname = "uv.duv_uvscale"
-    bl_label = "DUV UVScale"
+    bl_idname = "dream_uv.uvscale"
+    bl_label = "UV Scale"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
     first_mouse_x = None
@@ -30,7 +30,6 @@ class UVScale(bpy.types.Operator):
     move_snap = 2
 
     def invoke(self, context, event):
-
         #object->edit switch seems to "lock" the data. Ugly but hey it works
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.mode_set(mode='EDIT')
@@ -97,7 +96,6 @@ class UVScale(bpy.types.Operator):
             return {'CANCELLED'}
 
     def modal(self, context, event):
-        
         if event.type == 'X':
             self.xlock=False
             self.ylock=True
@@ -209,12 +207,12 @@ class UVScale(bpy.types.Operator):
             #update mesh
             bmesh.update_edit_mesh(self.mesh, False, False)
             return {'CANCELLED'}
-
         return {'RUNNING_MODAL'}
 
-class UVScaleStep(bpy.types.Operator):
+
+class DREAMUV_OT_uv_scale_step(bpy.types.Operator):
     """Scale UVs using snap size"""
-    bl_idname = "uv.duv_uvscalestep"
+    bl_idname = "dream_uv.uvscalestep"
     bl_label = "scale"
     bl_options = {"UNDO"}
 
@@ -312,7 +310,4 @@ class UVScaleStep(bpy.types.Operator):
 
         #update mesh
         bmesh.update_edit_mesh(mesh, False, False)
-
-
-
         return {'FINISHED'}

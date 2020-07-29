@@ -5,9 +5,9 @@ from mathutils import Vector
 from . import DUV_Utils
 
 
-class UVUnwrapSquare(bpy.types.Operator):
+class DREAMUV_OT_uv_unwrap_square(bpy.types.Operator):
     """Unwrap and attempt to fit to a square shape"""
-    bl_idname = "uv.duv_uvunwrapsquare"
+    bl_idname = "dream_uv.uvunwrapsquare"
     bl_label = "unwrap to square shape if possible"
     
     def execute(self, context):
@@ -21,7 +21,6 @@ class UVUnwrapSquare(bpy.types.Operator):
             if face.select:
                 HSfaces.append(face)    
 
-        
         is_rect = DUV_Utils.square_fit(context)
 
         #FIT TO 0-1 range
@@ -50,5 +49,4 @@ class UVUnwrapSquare(bpy.types.Operator):
 
         bmesh.update_edit_mesh(obj.data)
         bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
-
         return {'FINISHED'}

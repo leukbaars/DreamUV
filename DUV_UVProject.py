@@ -13,8 +13,8 @@ from mathutils import Vector
 from . import DUV_Utils
 
 
-class UVProject(bpy.types.Operator):
-    bl_idname = "duv.uvproject"
+class DREAMUV_OT_uv_project(bpy.types.Operator):
+    bl_idname = "dream_uv.uvproject"
     bl_label = "project along world axis!"
     
     def execute(self, context):
@@ -55,5 +55,4 @@ class UVProject(bpy.types.Operator):
                 loop[uv_layer].uv.y /= (ymax-ymin)
 
         bmesh.update_edit_mesh(obj.data)
-
         return {'FINISHED'}

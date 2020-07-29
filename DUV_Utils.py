@@ -474,5 +474,3 @@ class subrect:
     posaspect = int()
     size = float()
     uvcoord = list()
-
-

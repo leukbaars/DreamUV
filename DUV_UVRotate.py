@@ -3,10 +3,10 @@ import bmesh
 import math
 
 
-class UVRotate(bpy.types.Operator):
+class DREAMUV_OT_uv_rotate(bpy.types.Operator):
     """Rotate UVs in the 3D Viewport"""
-    bl_idname = "uv.duv_uvrotate"
-    bl_label = "DUV UVRotate"
+    bl_idname = "dream_uv.uvrotate"
+    bl_label = "UV Rotate"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
     first_mouse_x = None
@@ -23,7 +23,6 @@ class UVRotate(bpy.types.Operator):
     rotate_snap = 45
 
     def invoke(self, context, event):
-
         #object->edit switch seems to "lock" the data. Ugly but hey it works
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.mode_set(mode='EDIT')
@@ -151,12 +150,11 @@ class UVRotate(bpy.types.Operator):
             #update mesh
             bmesh.update_edit_mesh(self.mesh, False, False)
             return {'CANCELLED'}
-
         return {'RUNNING_MODAL'}
 
-class UVRotateStep(bpy.types.Operator):
+class DREAMUV_OT_uv_rotate_step(bpy.types.Operator):
     """Rotate UVs using snap size"""
-    bl_idname = "uv.duv_uvrotatestep"
+    bl_idname = "dream_uv.uvrotatestep"
     bl_label = "rotate"
     bl_options = {"UNDO"}
 
@@ -233,10 +231,6 @@ class UVRotateStep(bpy.types.Operator):
                 loop[uv_layer].uv.x += xcenter
                 loop[uv_layer].uv.y += ycenter
 
-
         #update mesh
         bmesh.update_edit_mesh(mesh, False, False)
-
-
-
         return {'FINISHED'}

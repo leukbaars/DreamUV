@@ -6,10 +6,10 @@ from mathutils import Vector
 from . import DUV_Utils
 
 
-class HotSpotter(bpy.types.Operator):
+class DREAMUV_OT_hotspotter(bpy.types.Operator):
     """Unwrap selection using the atlas object as a guide"""
-    bl_idname = "uv.duv_hotspotter"
-    bl_label = "hotspot"
+    bl_idname = "dream_uv.hotspotter"
+    bl_label = "HotSpot"
     bl_options = {"UNDO"}
 
     def execute(self, context):

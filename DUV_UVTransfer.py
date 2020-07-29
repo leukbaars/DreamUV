@@ -3,13 +3,14 @@ import bmesh
 from bpy.types import Menu
 from bpy.props import EnumProperty, BoolProperty
 
-class UVTransfer(bpy.types.Operator):
-    """DUV_UVTransfer"""
-    bl_idname = "uv.duv_uvtransfer"
-    bl_label = "transfer"
+
+class DREAMUV_OT_uv_transfer(bpy.types.Operator):
+    """Transfer to selection"""
+    bl_idname = "dream_uv.uvtransfer"
+    bl_label = "UV Transfer"
     bl_options = {"UNDO"}
+
     def execute(self, context):  
-        
         bpy.ops.uv.select_split()
  
         obj = bpy.context.view_layer.objects.active
@@ -89,11 +90,12 @@ class UVTransfer(bpy.types.Operator):
             bpy.ops.uv.duv_uvcycle()
         return {'FINISHED'}
 
-class UVTransferGrab(bpy.types.Operator):
-    """DUV_UVTransferGrab"""
-    bl_idname = "uv.duv_uvtransfergrab"
-    bl_label = "transfer"
+class DREAMUV_OT_uv_transfer_grab(bpy.types.Operator):
+    """UV Transfer Grab"""
+    bl_idname = "dream_uv.uvtransfergrab"
+    bl_label = "UV Transfer Grab"
     bl_options = {"UNDO"}
+
     def execute(self, context):
         bpy.ops.uv.select_split()
  
@@ -104,8 +106,6 @@ class UVTransferGrab(bpy.types.Operator):
         faces = list()
 
         xmin,xmax,ymin,ymax=0,0,0,0
-
-        
 
         selected_uv_loops = list()
 
@@ -145,7 +145,4 @@ class UVTransferGrab(bpy.types.Operator):
         context.scene.uvtransferxmin = xmin
         context.scene.uvtransferymax = ymax
         context.scene.uvtransferymin = ymin
-
         return {'FINISHED'}
-
-        
