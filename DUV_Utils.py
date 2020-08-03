@@ -38,6 +38,128 @@ def get_face_pixel_step(context, face):
     pixel_step = Vector((1 / target_img.size[0], 1 / target_img.size[1]))
     return pixel_step
 
+def get_orientation(context):
+    obj = bpy.context.view_layer.objects.active
+    bm = bmesh.from_edit_mesh(obj.data)
+    uv_layer = bm.loops.layers.uv.verify()
+    faces = list()
+    #MAKE FACE LIST
+    for face in bm.faces:
+        if face.select:
+            faces.append(face)
+    
+    for face in faces:
+        xmin, xmax = face.loops[0][uv_layer].uv.x, face.loops[0][uv_layer].uv.x
+        ymin, ymax = face.loops[0][uv_layer].uv.y, face.loops[0][uv_layer].uv.y
+
+    for vert in face.loops:
+        xmin = min(xmin, vert[uv_layer].uv.x)
+        xmax = max(xmax, vert[uv_layer].uv.x)
+        ymin = min(ymin, vert[uv_layer].uv.y)
+        ymax = max(ymax, vert[uv_layer].uv.y)
+
+    # corners:
+    # 3 2
+    # 0 1
+
+    bound0 = Vector((xmin,ymin))
+    bound1 = Vector((xmax,ymin))
+    bound2 = Vector((xmax,ymax))
+    bound3 = Vector((xmin,ymax))
+    middle = Vector(( ((xmax+xmin)/2)- bound0.x,((ymax+ymin)/2)-bound0.y ))
+
+
+
+    print("find corner 0:")
+    distance = middle.length
+    corner0 = faces[0].loops[0]
+    for f in faces:
+        for loop in f.loops:
+            loop_uv = loop[uv_layer]
+            vertuv = Vector((loop_uv.uv.x - bound0.x,loop_uv.uv.y - bound0.y))
+            tempdistance = vertuv.length
+            if tempdistance <= distance:
+                distance = tempdistance
+                corner0 = loop
+    print(corner0[uv_layer].uv)
+    
+    print("find corner 1:")
+    distance = middle.length
+    corner1 = faces[0].loops[0]
+    for f in faces:
+        for loop in f.loops:
+            loop_uv = loop[uv_layer]
+            vertuv = Vector((loop_uv.uv.x - bound1.x,loop_uv.uv.y - bound1.y))
+            tempdistance = vertuv.length
+            if tempdistance <= distance:
+                distance = tempdistance
+                corner1 = loop
+    print(corner1[uv_layer].uv)
+    
+    print("find corner 2:")
+    distance = middle.length
+    corner2 = faces[0].loops[0]
+    for f in faces:
+        for loop in f.loops:
+            loop_uv = loop[uv_layer]
+            vertuv = Vector((loop_uv.uv.x - bound2.x,loop_uv.uv.y - bound2.y))
+            tempdistance = vertuv.length
+            if tempdistance <= distance:
+                distance = tempdistance
+                corner2 = loop
+    print(corner2[uv_layer].uv)
+
+    print("find corner 3:")
+    distance = middle.length
+    corner3 = faces[0].loops[0]
+    for f in faces:
+        for loop in f.loops:
+            loop_uv = loop[uv_layer]
+            vertuv = Vector((loop_uv.uv.x - bound3.x,loop_uv.uv.y - bound3.y))
+            tempdistance = vertuv.length
+            if tempdistance <= distance:
+                distance = tempdistance
+                corner3 = loop
+    print(corner3[uv_layer].uv)
+
+    #orientations:
+    # 3 2   0 3   1 0   2 1
+    # 0 1   1 2   2 3   3 0  
+
+    #1st case:
+    if corner3.vert.co.z >= corner0.vert.co.z and corner2.vert.co.z >= corner1.vert.co.z and corner3.vert.co.z >= corner1.vert.co.z and corner2.vert.co.z >= corner0.vert.co.z:
+        print("case1")
+    
+    if corner0.vert.co.z >= corner1.vert.co.z and corner3.vert.co.z >= corner2.vert.co.z and corner0.vert.co.z >= corner2.vert.co.z and corner3.vert.co.z >= corner1.vert.co.z:
+        print("case2")
+        for face in faces:
+            for loop in face.loops:
+                newx = loop[uv_layer].uv.y
+                newy = -loop[uv_layer].uv.x 
+                loop[uv_layer].uv.x = newx
+                loop[uv_layer].uv.y = newy
+
+    if corner1.vert.co.z >= corner2.vert.co.z and corner0.vert.co.z >= corner3.vert.co.z and corner1.vert.co.z >= corner3.vert.co.z and corner0.vert.co.z >= corner2.vert.co.z:
+        print("case3")
+        for face in faces:
+            for loop in face.loops:
+                newx = -loop[uv_layer].uv.x
+                newy = -loop[uv_layer].uv.y 
+                loop[uv_layer].uv.x = newx
+                loop[uv_layer].uv.y = newy
+
+    if corner2.vert.co.z >= corner3.vert.co.z and corner1.vert.co.z >= corner0.vert.co.z and corner2.vert.co.z >= corner0.vert.co.z and corner1.vert.co.z >= corner3.vert.co.z:
+        print("case4")
+        for face in faces:
+            for loop in face.loops:
+                newx = -loop[uv_layer].uv.y
+                newy = loop[uv_layer].uv.x 
+                loop[uv_layer].uv.x = newx
+                loop[uv_layer].uv.y = newy
+
+    return None
+    
+
 def get_uv_ratio(context):
     #this code is terrible, someone who knows math make this better, thanks
     obj = bpy.context.view_layer.objects.active
@@ -293,6 +415,12 @@ def square_fit(context):
     sorted_corner_list[topangles[2]] = True
     sorted_corner_list[topangles[3]] = True
 
+
+    
+
+
+
+
     #find bottom left corner (using distance method seems to work well)
     distance = 2
     closest = 0
@@ -307,6 +435,26 @@ def square_fit(context):
         sorted_corner_list.append(sorted_corner_list.pop(0))
         sorted_uv_list.append(sorted_uv_list.pop(0))
         sorted_vert_list.append(sorted_vert_list.pop(0))
+
+    print("THESE ARE THE CORNERS")
+    print(sorted_corner_list)
+    #create coord list:
+
+    cornerz = list()
+
+    for i in range(len(sorted_vert_list)):
+        if sorted_corner_list[i] is True:
+            print(sorted_vert_list[i].co.z)
+            cornerz.append(sorted_vert_list[i].co.z)
+
+    print(cornerz)
+    #avgedge1 = cornerz[0] + cornerz[1]
+    #avgedge2 = cornerz[0] + cornerz[3]
+    #print(avgedge1)
+    #print(avgedge2)
+
+
+
 
     sorted_edge_ratios = list()
 
