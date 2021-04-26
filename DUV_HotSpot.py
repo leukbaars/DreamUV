@@ -84,6 +84,20 @@ class HotSpotter(bpy.types.Operator):
                 tempfaces.append(face)
                 face.select = False
 
+        #ADD MATERIAL
+        #check if we want to add material, then check if it needs to be added, and keep index for later
+        if context.scene.duv_hotspotmaterial is not None:
+            matindex = 0
+            doesmatexist = False
+            for m in obj.data.materials:
+                if m == context.scene.duv_hotspotmaterial:
+                    doesmatexist = True
+                    break
+                matindex += 1
+            if doesmatexist is False:
+                obj.data.materials.append(context.scene.duv_hotspotmaterial)
+
+
         while len(tempfaces) > 0:
 
             updatedfaces[0].select = True
@@ -226,8 +240,6 @@ class HotSpotter(bpy.types.Operator):
             else:
                 aspect = 1/(round(1/aspect))
 
-            print("this is now problem")
-            print(aspect)
 
             #ASPECT LOWER THAN 1.0 = TALL
             #ASPECT HIGHER THAN 1.0 = WIDE
@@ -411,8 +423,12 @@ class HotSpotter(bpy.types.Operator):
                 if randomMirrorY == 1:
                     op = bpy.ops.uv.duv_uvmirror(direction = "y")
 
-            
-                #now if it flipped to original position, flip it an extra time
+            #apply material from index
+            if context.scene.duv_hotspotmaterial is not None:
+                for face in HSfaces:   
+                    face.material_index = matindex
+
+                
 
 
         obj = bpy.context.view_layer.objects.active

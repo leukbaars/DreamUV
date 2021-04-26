@@ -219,6 +219,12 @@ class DUV_UVPanel(bpy.types.Panel):
         row = col.row(align = True)
         row.label(text="Atlas Object:")
         row.prop_search(context.scene, "subrect_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
+        row = col.row(align = True)
+        row.label(text="Atlas Scale:")
+        row.prop(context.scene, "duvhotspotscale", text="")
+        row = col.row(align = True)
+        row.label(text="Hotspot material:")
+        row.prop_search(context.scene, "duv_hotspotmaterial", bpy.data, "materials", text="")
 
         col.separator()
         row = col.row(align = True)
@@ -227,6 +233,7 @@ class DUV_UVPanel(bpy.types.Panel):
         row.prop(context.scene, "duv_usemirrorx", icon="EVENT_X", text="")
         row.prop(context.scene, "duv_usemirrory", icon="EVENT_Y", text="")
 
+        
         
 
         col = self.layout.column(align = True)
@@ -261,6 +268,9 @@ classes = (
     DUV_UVUnwrap.UVUnwrapSquare,
     DUV_HotSpot.HotSpotter,
 )
+
+def poll_material(self, material):
+    return not material.is_grease_pencil
 
 def register():
     for cls in classes:
@@ -309,6 +319,17 @@ def register():
         default = True,
         description = "Randomly mirror faces on the y-axis",
         )
+    bpy.types.Scene.duvhotspotscale = bpy.props.FloatProperty (
+        name = "duvhotspotscale",
+        default = 1.0,
+        description = "hotspotting scale multiplier",
+        )
+    bpy.types.Scene.duv_hotspotmaterial = bpy.props.PointerProperty (
+        name="duv_hotspotmaterial",
+        type=bpy.types.Material,
+        poll=poll_material,
+        description="hotspot material",
+        )
 
 def unregister():
     for cls in reversed(classes):
@@ -322,6 +343,8 @@ def unregister():
     del bpy.types.Scene.duv_useorientation
     del bpy.types.Scene.duv_usemirrorx
     del bpy.types.Scene.duv_usemirrory
+    del bpy.types.Scene.duvhotspotscale
+    del bpy.types.Scene.duv_hotspotmaterial
 
 if __name__ == "__main__":
     register()
