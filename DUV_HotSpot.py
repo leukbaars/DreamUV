@@ -18,6 +18,13 @@ class HotSpotter(bpy.types.Operator):
             self.report({'WARNING'}, "No valid atlas selected!")
             return {'FINISHED'}
 
+        #check for object or edit mode:
+        objectmode = False
+        if bpy.context.object.mode == 'OBJECT':
+            objectmode = True
+            #switch to edit and select all
+            bpy.ops.object.editmode_toggle() 
+            bpy.ops.mesh.select_all(action='SELECT')
 
         #PREPROCESS - save seams and hard edges
         obj = bpy.context.view_layer.objects.active
@@ -436,6 +443,10 @@ class HotSpotter(bpy.types.Operator):
         for face in faces:
             face.select = True
         bmesh.update_edit_mesh(obj.data)
-
         bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
+
+        if objectmode is True:
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.object.editmode_toggle() 
+
         return {'FINISHED'}

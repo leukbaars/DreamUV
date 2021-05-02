@@ -92,7 +92,7 @@ class DUV_UVPanel(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'DreamUV'
-    bl_context = "mesh_edit"
+    #bl_context = "mesh_edit"
 
     @classmethod
     def poll(cls, context):
@@ -107,6 +107,9 @@ class DUV_UVPanel(bpy.types.Panel):
         addon_prefs = prefs()
         layout = self.layout
         box = layout.box()
+        if bpy.context.object.mode != 'EDIT':
+            box.enabled = False
+
         col = box.column(align=True)
         col.label(text="Viewport UV Tools:")
         row = col.row(align = True)
@@ -181,9 +184,9 @@ class DUV_UVPanel(bpy.types.Panel):
         op.direction = "right"
 
         box = layout.box()
+        if bpy.context.object.mode != 'EDIT':
+            box.enabled = False
         col = box.column(align=True)
-
-
         col.label(text="Unwrapping Tools:")
         col.operator("uv.duv_uvunwrapsquare", text="Square Fit Unwrap", icon="OUTLINER_OB_LATTICE")
         unwraptool=col.operator("uv.unwrap", text="Blender Unwrap", icon='UV')
@@ -193,6 +196,8 @@ class DUV_UVPanel(bpy.types.Panel):
 
         col.separator()
         box = layout.box()
+        if bpy.context.object.mode != 'EDIT':
+            box.enabled = False
         col = box.column(align=True)
         col.label(text="UV Transfer Tool:")
         row = col.row(align = True)
