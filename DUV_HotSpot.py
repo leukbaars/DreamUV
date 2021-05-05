@@ -6,10 +6,10 @@ from mathutils import Vector
 from . import DUV_Utils
 
 
-class HotSpotter(bpy.types.Operator):
+class DREAMUV_OT_hotspotter(bpy.types.Operator):
     """Unwrap selection using the atlas object as a guide"""
-    bl_idname = "uv.duv_hotspotter"
-    bl_label = "hotspot"
+    bl_idname = "dream_uv.hotspotter"
+    bl_label = "HotSpot"
     bl_options = {"UNDO"}
 
     def execute(self, context):
@@ -417,18 +417,18 @@ class HotSpotter(bpy.types.Operator):
                 if aspect == 1:
                     flips = random.randint(0, 3)
                     for x in range(flips):
-                        bpy.ops.uv.duv_uvcycle()
+                        bpy.ops.dream_uv.uvcycle()
             
             #and also do randomized mirroring:
             if use_mirrorx is True:
                 randomMirrorX = random.randint(0, 1)
                 if randomMirrorX == 1:
-                    op = bpy.ops.uv.duv_uvmirror(direction = "x")
+                    op = bpy.ops.dream_uv.uvmirror(direction = "x")
 
             if use_mirrory is True:
                 randomMirrorY = random.randint(0, 1)
                 if randomMirrorY == 1:
-                    op = bpy.ops.uv.duv_uvmirror(direction = "y")
+                    op = bpy.ops.dream_uv.uvmirror(direction = "y")
 
             #apply material from index
             if context.scene.duv_hotspotmaterial is not None:

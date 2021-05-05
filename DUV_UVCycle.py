@@ -3,9 +3,9 @@ import math
 import bmesh
 from mathutils import Vector
 
-class UVCycle(bpy.types.Operator):
+class DREAMUV_OT_uv_cycle(bpy.types.Operator):
     """Rotate UVs but retain uv edge positions"""
-    bl_idname = "uv.duv_uvcycle"
+    bl_idname = "dream_uv.uvcycle"
     bl_label = "3D View UV Cycle"
     bl_options = {"UNDO"}
 

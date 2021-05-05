@@ -68,9 +68,6 @@ def get_orientation(context):
     bound3 = Vector((xmin,ymax))
     middle = Vector(( ((xmax+xmin)/2)- bound0.x,((ymax+ymin)/2)-bound0.y ))
 
-
-
-
     distance = middle.length
     corner0 = faces[0].loops[0]
     for f in faces:
@@ -155,6 +152,8 @@ def get_orientation(context):
     
 
 def get_uv_ratio(context):
+    #figure out uv size to then compare against subrect size
+    #to do this I project the mesh using uv coords so i can calculate the area using sum(f.calc_area(). Because I am too lazy to figure out the math
     #this code is terrible, someone who knows math make this better, thanks
     obj = bpy.context.view_layer.objects.active
     bm = bmesh.from_edit_mesh(obj.data)
@@ -287,7 +286,7 @@ def square_fit(context):
     distorted = False
 
     for face in faces: 
-        if len(face.loops) is not 4 :
+        if len(face.loops) != 4 :
             quadmethod = False
             #print('no quad!')
 
@@ -406,7 +405,7 @@ def square_fit(context):
                 topindex = i
         #print(sorted_angle_list[topindex])
         
-        if o is 3:
+        if o == 3:
             if sorted_angle_list[topindex] > 120:
                 distorted = True
 
@@ -469,7 +468,7 @@ def square_fit(context):
     for i in range(len(sorted_vert_list)):
         if sorted_corner_list[i] is True:
             sorted_edge_ratios.append(0)
-            if i is not 0:
+            if i != 0:
                 l = (sorted_vert_list[i-1].co.xyz - sorted_vert_list[i].co.xyz).length
                 edge.append(sorted_edge_ratios[i-1] + l)
             

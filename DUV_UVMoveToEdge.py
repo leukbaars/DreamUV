@@ -3,17 +3,15 @@ import math
 import bmesh
 from mathutils import Vector
 
-class UVMoveToEdge(bpy.types.Operator):
+class DREAMUV_OT_uv_move_to_edge(bpy.types.Operator):
     """Move Selected faces to edge of texture"""
-    bl_idname = "uv.duv_uvmovetoedge"
+    bl_idname = "dream_uv.uvmovetoedge"
     bl_label = "3D View UV Move to UV Edge"
     bl_options = {"UNDO"}
 
     direction = bpy.props.StringProperty()
 
     def execute(self, context):
-
-        print(self.direction)
 
         mesh = bpy.context.object.data
         mesh = bpy.context.object.data

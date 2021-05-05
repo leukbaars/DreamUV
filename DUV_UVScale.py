@@ -3,10 +3,10 @@ import bmesh
 import math
 
 
-class UVScale(bpy.types.Operator):
+class DREAMUV_OT_uv_scale(bpy.types.Operator):
     """Scale UVs in the 3D Viewport"""
-    bl_idname = "uv.duv_uvscale"
-    bl_label = "DUV UVScale"
+    bl_idname = "dream_uv.uvscale"
+    bl_label = "UV Scale"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
     first_mouse_x = None
@@ -212,9 +212,9 @@ class UVScale(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
 
-class UVScaleStep(bpy.types.Operator):
+class DREAMUV_OT_uv_scale_step(bpy.types.Operator):
     """Scale UVs using snap size"""
-    bl_idname = "uv.duv_uvscalestep"
+    bl_idname = "dream_uv.uvscalestep"
     bl_label = "scale"
     bl_options = {"UNDO"}
 

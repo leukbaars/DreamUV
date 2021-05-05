@@ -3,9 +3,9 @@ import math
 import bmesh
 from mathutils import Vector
 
-class UVMirror(bpy.types.Operator):
+class DREAMUV_OT_uv_mirror(bpy.types.Operator):
     """Mirror UVs but retain uv edge positions"""
-    bl_idname = "uv.duv_uvmirror"
+    bl_idname = "dream_uv.uvmirror"
     bl_label = "3D View UV Mirror"
     bl_options = {"UNDO"}
 

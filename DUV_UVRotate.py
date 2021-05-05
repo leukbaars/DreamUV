@@ -3,10 +3,10 @@ import bmesh
 import math
 
 
-class UVRotate(bpy.types.Operator):
+class DREAMUV_OT_uv_rotate(bpy.types.Operator):
     """Rotate UVs in the 3D Viewport"""
-    bl_idname = "uv.duv_uvrotate"
-    bl_label = "DUV UVRotate"
+    bl_idname = "dream_uv.uvrotate"
+    bl_label = "UV Rotate"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
     first_mouse_x = None
@@ -154,9 +154,9 @@ class UVRotate(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
 
-class UVRotateStep(bpy.types.Operator):
+class DREAMUV_OT_uv_rotate_step(bpy.types.Operator):
     """Rotate UVs using snap size"""
-    bl_idname = "uv.duv_uvrotatestep"
+    bl_idname = "dream_uv.uvrotatestep"
     bl_label = "rotate"
     bl_options = {"UNDO"}
 

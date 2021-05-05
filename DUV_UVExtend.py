@@ -3,9 +3,9 @@ import bmesh
 import math
 from mathutils import Vector
 
-class UVExtend(bpy.types.Operator):
+class DREAMUV_OT_uv_extend(bpy.types.Operator):
     """Extend UVs on selected faces from active face"""
-    bl_idname = "uv.duv_uvextend"
+    bl_idname = "dream_uv.uvextend"
     bl_label = "3D View UV Extend"
     bl_options = {"UNDO"}
 
