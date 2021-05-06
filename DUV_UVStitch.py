@@ -2,7 +2,7 @@ import bpy
 
 class DREAMUV_OT_uv_stitch(bpy.types.Operator):
     """Stitch shared vertices on selected faces"""
-    bl_idname = "dream_uv.uvstitch"
+    bl_idname = "view3d.dreamuv_uvstitch"
     bl_label = "3D View UV Stitch"
     bl_options = {"UNDO"}
 

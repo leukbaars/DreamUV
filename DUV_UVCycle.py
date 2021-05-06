@@ -5,7 +5,7 @@ from mathutils import Vector
 
 class DREAMUV_OT_uv_cycle(bpy.types.Operator):
     """Rotate UVs but retain uv edge positions"""
-    bl_idname = "dream_uv.uvcycle"
+    bl_idname = "view3d.dreamuv_uvcycle"
     bl_label = "3D View UV Cycle"
     bl_options = {"UNDO"}
 

@@ -5,7 +5,7 @@ from mathutils import Vector
 
 class DREAMUV_OT_uv_move_to_edge(bpy.types.Operator):
     """Move Selected faces to edge of texture"""
-    bl_idname = "dream_uv.uvmovetoedge"
+    bl_idname = "view3d.dreamuv_uvmovetoedge"
     bl_label = "3D View UV Move to UV Edge"
     bl_options = {"UNDO"}
 

@@ -3,10 +3,10 @@ import bmesh
 import math
 
 
-class DREAMUV_OT_uv_scale(bpy.types.Operator):
-    """Scale UVs in the 3D Viewport"""
-    bl_idname = "view3d.dreamuv_uvscale"
-    bl_label = "UV Scale"
+class DREAMUV_OT_uv_inset(bpy.types.Operator):
+    """Inset UVs in the 3D Viewport"""
+    bl_idname = "view3d.dreamuv_uvinset"
+    bl_label = "UV Inset"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
     first_mouse_x = None
@@ -212,10 +212,10 @@ class DREAMUV_OT_uv_scale(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
 
-class DREAMUV_OT_uv_scale_step(bpy.types.Operator):
-    """Scale UVs using snap size"""
-    bl_idname = "view3d.dreamuv_uvscalestep"
-    bl_label = "scale"
+class DREAMUV_OT_uv_inset_step(bpy.types.Operator):
+    """Inset UVs using pixel size"""
+    bl_idname = "view3d.dreamuv_uvinsetstep"
+    bl_label = "inset"
     bl_options = {"UNDO"}
 
     direction = bpy.props.StringProperty()
@@ -232,19 +232,6 @@ class DREAMUV_OT_uv_scale_step(bpy.types.Operator):
             if face.select:
                 faces.append(face)  
 
-        mirrored = False
-        #check if mirrored:
-        for face in faces:
-            sum_edges = 0
-            # Only loop 3 verts ignore others: faster!
-            for i in range(3):
-                uv_A = face.loops[i][uv_layer].uv
-                uv_B = face.loops[(i+1)%3][uv_layer].uv
-                sum_edges += (uv_B.x - uv_A.x) * (uv_B.y + uv_A.y)
-
-            if sum_edges > 0:
-                mirrored = True
-
         #get original size
         xmin, xmax = faces[0].loops[0][uv_layer].uv.x, faces[0].loops[0][uv_layer].uv.x
         ymin, ymax = faces[0].loops[0][uv_layer].uv.y, faces[0].loops[0][uv_layer].uv.y
@@ -256,59 +243,38 @@ class DREAMUV_OT_uv_scale_step(bpy.types.Operator):
                 ymin = min(ymin, vert[uv_layer].uv.y)
                 ymax = max(ymax, vert[uv_layer].uv.y)
         
-        xcenter=(xmin+xmax)/2
-        ycenter=(ymin+ymax)/2
+        print(xmin)
+        print(xmax)
+        print(ymin)
+        print(ymax)
 
-        #step rotation
-        module_name = __name__.split('.')[0]
-        addon_prefs = bpy.context.preferences.addons[module_name].preferences
-        scale_snap_x = addon_prefs.scale_snap
-        scale_snap_y = addon_prefs.scale_snap
-    
-        if self.direction == "+XY":
-            scale_snap_x = 1/scale_snap_x
-            scale_snap_y = 1/scale_snap_y
-        #if self.direction == "-XY":
-
-        if self.direction == "+X":
-            scale_snap_x = 1/scale_snap_x
-            scale_snap_y = 1
-        if self.direction == "-X":
-            scale_snap_x = scale_snap_x
-            scale_snap_y = 1
-        if self.direction == "+Y":
-            scale_snap_x = 1
-            scale_snap_y = 1/scale_snap_y
-        if self.direction == "-Y":
-            scale_snap_x = 1
-            scale_snap_y = scale_snap_y
-
-        #PI/4=0.78539816339
-        #PIdiv=3.14159265359/(180/rotate_snap)
-        #delta = (3.14159265359/180)*rotate_snap
-        #delta = math.floor(delta/PIdiv)*PIdiv
-        #if self.direction == "reverse":
-        #    print("reverse")
-            #delta = (3.14159265359/180)-delta
-        #    delta = -delta
-        #if mirrored:
-        #    delta = -delta
-
-        #loop through every selected face and scale the uv's using original uv as reference
         for face in faces:
-            for loop in face.loops:
-                loop[uv_layer].uv.x -= xcenter
-                loop[uv_layer].uv.y -= ycenter
+                for loop in face.loops:
+                    loop[uv_layer].uv.x-= xmin
+                    loop[uv_layer].uv.y -= ymin
+                    loop[uv_layer].uv.x /= (xmax-xmin)
+                    loop[uv_layer].uv.y /= (ymax-ymin)
 
-                #oldx = loop[uv_layer].uv.x
-                #oldy = loop[uv_layer].uv.y
+        pixel_inset = context.scene.uvinsetpixels/context.scene.uvinsettexsize
 
-                loop[uv_layer].uv.x = loop[uv_layer].uv.x * scale_snap_x
-                loop[uv_layer].uv.y = loop[uv_layer].uv.y * scale_snap_y
+        if self.direction == "in":
+            xmin += pixel_inset
+            xmax -= pixel_inset
+            ymin += pixel_inset
+            ymax -= pixel_inset
+        if self.direction == "out":
+            xmin -= pixel_inset
+            xmax += pixel_inset
+            ymin -= pixel_inset
+            ymax += pixel_inset
 
-                loop[uv_layer].uv.x += xcenter
-                loop[uv_layer].uv.y += ycenter
-
+        #move into new quad
+        for face in faces:
+                for loop in face.loops:
+                    loop[uv_layer].uv.x *= xmax-xmin
+                    loop[uv_layer].uv.y *= ymax-ymin
+                    loop[uv_layer].uv.x += xmin
+                    loop[uv_layer].uv.y += ymin
 
         #update mesh
         bmesh.update_edit_mesh(mesh, False, False)

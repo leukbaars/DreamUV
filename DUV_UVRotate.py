@@ -5,7 +5,7 @@ import math
 
 class DREAMUV_OT_uv_rotate(bpy.types.Operator):
     """Rotate UVs in the 3D Viewport"""
-    bl_idname = "dream_uv.uvrotate"
+    bl_idname = "view3d.dreamuv_uvrotate"
     bl_label = "UV Rotate"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
@@ -156,7 +156,7 @@ class DREAMUV_OT_uv_rotate(bpy.types.Operator):
 
 class DREAMUV_OT_uv_rotate_step(bpy.types.Operator):
     """Rotate UVs using snap size"""
-    bl_idname = "dream_uv.uvrotatestep"
+    bl_idname = "view3d.dreamuv_uvrotatestep"
     bl_label = "rotate"
     bl_options = {"UNDO"}
 

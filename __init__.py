@@ -25,6 +25,7 @@ from . import DUV_Utils
 from . import DUV_HotSpot
 from . import DUV_UVProject
 from . import DUV_UVUnwrap
+from . import DUV_UVInset
 
 import importlib
 if 'bpy' in locals():
@@ -41,6 +42,7 @@ if 'bpy' in locals():
     importlib.reload(DUV_HotSpot)
     importlib.reload(DUV_UVProject)
     importlib.reload(DUV_UVUnwrap)
+    importlib.reload(DUV_UVInset)
 
 class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -67,11 +69,6 @@ class DUVUVToolsPreferences(bpy.types.AddonPreferences):
         default=45
     )
 
-    show_panel_tools : BoolProperty(
-        name="Show Tools in UV Panel",
-        default=True
-    )
-
 
 # This should get its own py file
 class DREAMUV_PT_uv(bpy.types.Panel):
@@ -81,10 +78,10 @@ class DREAMUV_PT_uv(bpy.types.Panel):
     bl_region_type = 'UI'
     bl_category = 'DreamUV'
 
-    @classmethod
-    def poll(cls, context):
-        prefs = bpy.context.preferences.addons[__name__].preferences
-        return prefs.show_panel_tools
+    #@classmethod
+    #def poll(cls, context):
+    #    prefs = bpy.context.preferences.addons[__name__].preferences
+    #    return prefs.show_panel_tools
 
     def draw(self, context):
         addon_prefs = prefs()
@@ -96,68 +93,77 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         col = box.column(align=True)
         col.label(text="Viewport UV Tools:")
         row = col.row(align = True)
-        row.operator("dream_uv.uvtranslate", text="Move", icon="UV_SYNC_SELECT")
+        row.operator("view3d.dreamuv_uvtranslate", text="Move", icon="UV_SYNC_SELECT")
         row = row.row(align = True)
         row.prop(addon_prefs, 'move_snap', text="")
 
         row = col.row(align = True)
-        op = row.operator("dream_uv.uvtranslatestep", text=" ", icon="TRIA_UP")
+        op = row.operator("view3d.dreamuv_uvtranslatestep", text=" ", icon="TRIA_UP")
         op.direction="up"
-        op = row.operator("dream_uv.uvtranslatestep", text=" ", icon="TRIA_DOWN")
+        op = row.operator("view3d.dreamuv_uvtranslatestep", text=" ", icon="TRIA_DOWN")
         op.direction="down"
-        op = row.operator("dream_uv.uvtranslatestep", text=" ", icon="TRIA_LEFT")
+        op = row.operator("view3d.dreamuv_uvtranslatestep", text=" ", icon="TRIA_LEFT")
         op.direction = "left"
-        op = row.operator("dream_uv.uvtranslatestep", text=" ", icon="TRIA_RIGHT")
+        op = row.operator("view3d.dreamuv_uvtranslatestep", text=" ", icon="TRIA_RIGHT")
         op.direction = "right"
         col.separator()
 
         row = col.row(align = True)
-        row.operator("dream_uv.uvscale", text="Scale", icon="FULLSCREEN_ENTER")
+        row.operator("view3d.dreamuv_uvscale", text="Scale", icon="FULLSCREEN_ENTER")
         row = row.row(align = True)
         row.prop(addon_prefs, 'scale_snap', text="")
         row = col.row(align = True)
-        op = row.operator("dream_uv.uvscalestep", text=" ", icon="ADD")
+        op = row.operator("view3d.dreamuv_uvscalestep", text=" ", icon="ADD")
         op.direction="+XY"
-        op = row.operator("dream_uv.uvscalestep", text=" ", icon="REMOVE")
+        op = row.operator("view3d.dreamuv_uvscalestep", text=" ", icon="REMOVE")
         op.direction="-XY"
-        op = row.operator("dream_uv.uvscalestep", text="+X")
+        op = row.operator("view3d.dreamuv_uvscalestep", text="+X")
         op.direction = "+X"
-        op = row.operator("dream_uv.uvscalestep", text="-X")
+        op = row.operator("view3d.dreamuv_uvscalestep", text="-X")
         op.direction = "-X"
-        op = row.operator("dream_uv.uvscalestep", text="+Y")
+        op = row.operator("view3d.dreamuv_uvscalestep", text="+Y")
         op.direction = "+Y"
-        op = row.operator("dream_uv.uvscalestep", text="-Y")
+        op = row.operator("view3d.dreamuv_uvscalestep", text="-Y")
         op.direction = "-Y"
         col.separator()
 
         row = col.row(align = True)
-        row.operator("dream_uv.uvrotate", text="Rotate", icon="FILE_REFRESH")
+        row.operator("view3d.dreamuv_uvrotate", text="Rotate", icon="FILE_REFRESH")
         row = row.row(align = True)
         row.prop(addon_prefs, 'rotate_snap', text="")
         row = col.row(align = True)
-        op = row.operator("dream_uv.uvrotatestep", text=" ", icon="LOOP_FORWARDS")
+        op = row.operator("view3d.dreamuv_uvrotatestep", text=" ", icon="LOOP_FORWARDS")
         op.direction="forward"
-        op = row.operator("dream_uv.uvrotatestep", text=" ", icon="LOOP_BACK")
+        op = row.operator("view3d.dreamuv_uvrotatestep", text=" ", icon="LOOP_BACK")
         op.direction="reverse"
         col.separator()
-        col.operator("dream_uv.uvextend", text="Extend", icon="MOD_TRIANGULATE")
-        col.operator("dream_uv.uvstitch", text="Stitch", icon="UV_EDGESEL")
-        col.operator("dream_uv.uvcycle", text="Cycle", icon="FILE_REFRESH")
+        col.operator("view3d.dreamuv_uvextend", text="Extend", icon="MOD_TRIANGULATE")
+        col.operator("view3d.dreamuv_uvstitch", text="Stitch", icon="UV_EDGESEL")
+        col.operator("view3d.dreamuv_uvcycle", text="Cycle", icon="FILE_REFRESH")
         row = col.row(align = True)
-        op = row.operator("dream_uv.uvmirror", text="Mirror X", icon="MOD_MIRROR")
+        op = row.operator("view3d.dreamuv_uvmirror", text="Mirror X", icon="MOD_MIRROR")
         op.direction = "x"
-        op = row.operator("dream_uv.uvmirror", text="Mirror Y")
+        op = row.operator("view3d.dreamuv_uvmirror", text="Mirror Y")
         op.direction = "y"
+
+        col.separator()
+        row = col.row(align = True)
+        op = row.operator("view3d.dreamuv_uvinsetstep", text="Inset", icon="FULLSCREEN_EXIT")
+        op.direction = "in"
+        op = row.operator("view3d.dreamuv_uvinsetstep", text="Expand", icon="FULLSCREEN_ENTER")
+        op.direction = "out"
+        row.prop(context.scene, "uvinsetpixels", text="")
+        row.prop(context.scene, "uvinsettexsize", text="")
 
         col.label(text="Move to UV Edge:")
         row = col.row(align = True)
-        op = row.operator("dream_uv.uvmovetoedge", text=" ", icon="TRIA_UP_BAR")
+        op = row.operator("view3d.dreamuv_uvmovetoedge", text=" ", icon="TRIA_UP_BAR")
         op.direction="up"
-        op = row.operator("dream_uv.uvmovetoedge", text=" ", icon="TRIA_DOWN_BAR")
+        op = row.operator("view3d.dreamuv_uvmovetoedge", text=" ", icon="TRIA_DOWN_BAR")
         op.direction="down"
-        op = row.operator("dream_uv.uvmovetoedge", text=" ", icon="TRIA_LEFT_BAR")
+        op = row.operator("view3d.dreamuv_uvmovetoedge", text=" ", icon="TRIA_LEFT_BAR")
         op.direction = "left"
-        op = row.operator("dream_uv.uvmovetoedge", text=" ", icon="TRIA_RIGHT_BAR")
+        op = row.operator("view3d.dreamuv_uvmovetoedge", text=" ", icon="TRIA_RIGHT_BAR")
         op.direction = "right"
 
         box = layout.box()
@@ -165,7 +171,7 @@ class DREAMUV_PT_uv(bpy.types.Panel):
             box.enabled = False
         col = box.column(align=True)
         col.label(text="Unwrapping Tools:")
-        col.operator("dream_uv.uvunwrapsquare", text="Square Fit Unwrap", icon="OUTLINER_OB_LATTICE")
+        col.operator("view3d.dreamuv_uvunwrapsquare", text="Square Fit Unwrap", icon="OUTLINER_OB_LATTICE")
         unwraptool=col.operator("uv.unwrap", text="Blender Unwrap", icon='UV')
         unwraptool.method='CONFORMAL'
         unwraptool.margin=0.001
@@ -183,16 +189,14 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         row.prop(context.scene, "uvtransferxmax", text="")
         row.prop(context.scene, "uvtransferymax", text="")
 
-        col.operator("dream_uv.uvtransfergrab", text="Grab UV from selection", icon="FILE_TICK")
+        col.operator("view3d.dreamuv_uvtransfergrab", text="Grab UV from selection", icon="FILE_TICK")
         row = col.row(align = True)
-        row.operator("dream_uv.uvtransfer", text="Transfer to selection", icon="MOD_UVPROJECT")
-        
+        row.operator("view3d.dreamuv_uvtransfer", text="Transfer to selection", icon="MOD_UVPROJECT")
+
         col.separator()
         box = layout.box()
         col = box.column(align=True)
-        
         col.label(text="HotSpot Tool:")
-    
         row = col.row(align = True)
         row.label(text="Atlas Object:")
         row.prop_search(context.scene, "subrect_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
@@ -202,10 +206,16 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         row = col.row(align = True)
         row.label(text="Hotspot material:")
         row.prop_search(context.scene, "duv_hotspotmaterial", bpy.data, "materials", text="")
+        row = col.row(align = True)
+        row.prop(context.scene, "duv_hotspotuseinset", icon="FULLSCREEN_EXIT", text="use inset")
+        row.separator()
+        row.prop(context.scene, "hotspotinsetpixels", text="")
+        row.prop(context.scene, "hotspotinsettexsize", text="")
+        
 
         col.separator()
         row = col.row(align = True)
-        row.operator("dream_uv.hotspotter", text="HotSpot", icon="SHADERFX")
+        row.operator("view3d.dreamuv_hotspotter", text="HotSpot", icon="SHADERFX")
         row.prop(context.scene, "duv_useorientation", icon="EVENT_W", text="")
         row.prop(context.scene, "duv_usemirrorx", icon="EVENT_X", text="")
         row.prop(context.scene, "duv_usemirrory", icon="EVENT_Y", text="")
@@ -239,6 +249,8 @@ classes = (
     DUV_UVProject.DREAMUV_OT_uv_project,
     DUV_UVUnwrap.DREAMUV_OT_uv_unwrap_square,
     DUV_HotSpot.DREAMUV_OT_hotspotter,
+    DUV_UVInset.DREAMUV_OT_uv_inset,
+    DUV_UVInset.DREAMUV_OT_uv_inset_step,
 )
 
 def poll_material(self, material):
@@ -253,6 +265,17 @@ def register():
         type=bpy.types.Object,
         description="atlas object",
         )
+    bpy.types.Scene.uvinsetpixels = bpy.props.FloatProperty (
+        name = "uv inset pixel amount",
+        default = 1.0,
+        description = "",
+        )
+    bpy.types.Scene.uvinsettexsize = bpy.props.FloatProperty (
+        name = "uv inset texture size",
+        default = 1024.0,
+        description = "",
+        )
+    
     bpy.types.Scene.uvtransferxmin = bpy.props.FloatProperty (
         name = "uvtransferxmin",
         default = 0.0,
@@ -299,6 +322,22 @@ def register():
         poll=poll_material,
         description="hotspot material",
         )
+    bpy.types.Scene.duv_hotspotuseinset = bpy.props.BoolProperty (
+        name = "duv_hotspotuseinset",
+        default = False,
+        description = "Use inset when hotspotting",
+        )
+    bpy.types.Scene.hotspotinsetpixels = bpy.props.FloatProperty (
+        name = "hotspot inset pixel amount",
+        default = 1.0,
+        description = "",
+        )
+    bpy.types.Scene.hotspotinsettexsize = bpy.props.FloatProperty (
+        name = "hotspot texture size",
+        default = 1024.0,
+        description = "",
+        )
+    
 
 def unregister():
     for cls in reversed(classes):

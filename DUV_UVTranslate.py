@@ -7,7 +7,7 @@ from . import DUV_Utils
 
 class DREAMUV_OT_uv_translate(bpy.types.Operator):
     """Translate UVs in the 3D Viewport"""
-    bl_idname = "dream_uv.uvtranslate"
+    bl_idname = "view3d.dreamuv_uvtranslate"
     bl_label = "UV Translate"
     bl_options = {"GRAB_CURSOR", "UNDO", "BLOCKING"}
 
@@ -240,7 +240,7 @@ class DREAMUV_OT_uv_translate(bpy.types.Operator):
 
 class DREAMUV_OT_uv_translate_step(bpy.types.Operator):
     """Move UVs using snap size"""
-    bl_idname = "dream_uv.uvtranslatestep"
+    bl_idname = "view3d.dreamuv_uvtranslatestep"
     bl_label = "UV Translate Step"
     bl_options = {"UNDO"}
 

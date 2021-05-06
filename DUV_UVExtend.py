@@ -5,7 +5,7 @@ from mathutils import Vector
 
 class DREAMUV_OT_uv_extend(bpy.types.Operator):
     """Extend UVs on selected faces from active face"""
-    bl_idname = "dream_uv.uvextend"
+    bl_idname = "view3d.dreamuv_uvextend"
     bl_label = "3D View UV Extend"
     bl_options = {"UNDO"}
 

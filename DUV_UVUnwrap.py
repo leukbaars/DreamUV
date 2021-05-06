@@ -7,7 +7,7 @@ from . import DUV_Utils
 
 class DREAMUV_OT_uv_unwrap_square(bpy.types.Operator):
     """Unwrap and attempt to fit to a square shape"""
-    bl_idname = "dream_uv.uvunwrapsquare"
+    bl_idname = "view3d.dreamuv_uvunwrapsquare"
     bl_label = "unwrap to square shape if possible"
     
     def execute(self, context):

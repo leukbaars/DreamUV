@@ -14,7 +14,7 @@ from . import DUV_Utils
 
 
 class DREAMUV_OT_uv_project(bpy.types.Operator):
-    bl_idname = "dream_uv.uvproject"
+    bl_idname = "view3d.dreamuv_uvproject"
     bl_label = "project along world axis!"
     
     def execute(self, context):

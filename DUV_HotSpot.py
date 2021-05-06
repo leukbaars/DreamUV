@@ -8,7 +8,7 @@ from . import DUV_Utils
 
 class DREAMUV_OT_hotspotter(bpy.types.Operator):
     """Unwrap selection using the atlas object as a guide"""
-    bl_idname = "dream_uv.hotspotter"
+    bl_idname = "view3d.dreamuv_hotspotter"
     bl_label = "HotSpot"
     bl_options = {"UNDO"}
 
@@ -392,7 +392,13 @@ class DREAMUV_OT_hotspotter(bpy.types.Operator):
             #           print(loop.vert.co.z) 
 
 
-
+            #check if uv needs to be inset
+            if context.scene.duv_hotspotuseinset is True:
+                pixel_inset = context.scene.hotspotinsetpixels/context.scene.hotspotinsettexsize
+                xmin += pixel_inset
+                xmax -= pixel_inset
+                ymin += pixel_inset
+                ymax -= pixel_inset
 
             #apply the new UV
             for face in HSfaces:
@@ -417,18 +423,18 @@ class DREAMUV_OT_hotspotter(bpy.types.Operator):
                 if aspect == 1:
                     flips = random.randint(0, 3)
                     for x in range(flips):
-                        bpy.ops.dream_uv.uvcycle()
+                        bpy.ops.view3d.dreamuv_uvcycle()
             
             #and also do randomized mirroring:
             if use_mirrorx is True:
                 randomMirrorX = random.randint(0, 1)
                 if randomMirrorX == 1:
-                    op = bpy.ops.dream_uv.uvmirror(direction = "x")
+                    op = bpy.ops.view3d.dreamuv_uvmirror(direction = "x")
 
             if use_mirrory is True:
                 randomMirrorY = random.randint(0, 1)
                 if randomMirrorY == 1:
-                    op = bpy.ops.dream_uv.uvmirror(direction = "y")
+                    op = bpy.ops.view3d.dreamuv_uvmirror(direction = "y")
 
             #apply material from index
             if context.scene.duv_hotspotmaterial is not None:

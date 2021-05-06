@@ -5,7 +5,7 @@ from bpy.props import EnumProperty, BoolProperty
 
 class DREAMUV_OT_uv_transfer(bpy.types.Operator):
     """Transfer to selection"""
-    bl_idname = "dream_uv.uvtransfer"
+    bl_idname = "view3d.dreamuv_uvtransfer"
     bl_label = "UV Transfer"
     bl_options = {"UNDO"}
 
@@ -87,12 +87,12 @@ class DREAMUV_OT_uv_transfer(bpy.types.Operator):
 
         #cycle if needed:
         if (aspect >= 1 and aspecttarget < 1) or (aspect <= 1 and aspecttarget > 1):
-            bpy.ops.dream_uv.uvcycle()
+            bpy.ops.view3d.dreamuv_uvcycle()
         return {'FINISHED'}
 
 class DREAMUV_OT_uv_transfer_grab(bpy.types.Operator):
     """UV Transfer Grab"""
-    bl_idname = "dream_uv.uvtransfergrab"
+    bl_idname = "view3d.dreamuv_uvtransfergrab"
     bl_label = "UV Transfer Grab"
     bl_options = {"UNDO"}
 
