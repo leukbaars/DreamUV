@@ -9,7 +9,7 @@ class DREAMUV_OT_uv_move_to_edge(bpy.types.Operator):
     bl_label = "3D View UV Move to UV Edge"
     bl_options = {"UNDO"}
 
-    direction = bpy.props.StringProperty()
+    direction : bpy.props.StringProperty()
 
     def execute(self, context):
 

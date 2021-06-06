@@ -26,6 +26,7 @@ from . import DUV_HotSpot
 from . import DUV_UVProject
 from . import DUV_UVUnwrap
 from . import DUV_UVInset
+from . import DUV_UVTrim
 
 import importlib
 if 'bpy' in locals():
@@ -43,6 +44,7 @@ if 'bpy' in locals():
     importlib.reload(DUV_UVProject)
     importlib.reload(DUV_UVUnwrap)
     importlib.reload(DUV_UVInset)
+    importlib.reload(DUV_UVTrim)
 
 class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -99,9 +101,9 @@ class DREAMUV_PT_uv(bpy.types.Panel):
 
         row = col.row(align = True)
         op = row.operator("view3d.dreamuv_uvtranslatestep", text=" ", icon="TRIA_UP")
-        op.direction="up"
+        op.direction = "up"
         op = row.operator("view3d.dreamuv_uvtranslatestep", text=" ", icon="TRIA_DOWN")
-        op.direction="down"
+        op.direction = "down"
         op = row.operator("view3d.dreamuv_uvtranslatestep", text=" ", icon="TRIA_LEFT")
         op.direction = "left"
         op = row.operator("view3d.dreamuv_uvtranslatestep", text=" ", icon="TRIA_RIGHT")
@@ -211,7 +213,6 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         row.separator()
         row.prop(context.scene, "hotspotinsetpixels", text="")
         row.prop(context.scene, "hotspotinsettexsize", text="")
-        
 
         col.separator()
         row = col.row(align = True)
@@ -219,6 +220,14 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         row.prop(context.scene, "duv_useorientation", icon="EVENT_W", text="")
         row.prop(context.scene, "duv_usemirrorx", icon="EVENT_X", text="")
         row.prop(context.scene, "duv_usemirrory", icon="EVENT_Y", text="")
+
+        #col.separator()
+        #box = layout.box()
+        #col = box.column(align=True)
+        #col.label(text="Trim Tool:")
+        #row = col.row(align = True)
+        #row.operator("view3d.dreamuv_uvtrim", text="TRIM", icon="MOD_UVPROJECT")
+        #row.prop_search(context.scene, "trim_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
 
         col = self.layout.column(align = True)
         col2= self.layout.column(align = True)
@@ -251,6 +260,7 @@ classes = (
     DUV_HotSpot.DREAMUV_OT_hotspotter,
     DUV_UVInset.DREAMUV_OT_uv_inset,
     DUV_UVInset.DREAMUV_OT_uv_inset_step,
+    DUV_UVTrim.DREAMUV_OT_uv_trim,
 )
 
 def poll_material(self, material):
@@ -264,6 +274,11 @@ def register():
         name="atlas",
         type=bpy.types.Object,
         description="atlas object",
+        )
+    bpy.types.Scene.trim_atlas = bpy.props.PointerProperty (
+        name="trim_atlas",
+        type=bpy.types.Object,
+        description="trim atlas",
         )
     bpy.types.Scene.uvinsetpixels = bpy.props.FloatProperty (
         name = "uv inset pixel amount",
@@ -344,6 +359,7 @@ def unregister():
         bpy.utils.unregister_class(cls)
 
     del bpy.types.Scene.subrect_atlas
+    del bpy.types.Scene.trim_atlas
     del bpy.types.Scene.uvtransferxmin
     del bpy.types.Scene.uvtransferymin
     del bpy.types.Scene.uvtransferxmax

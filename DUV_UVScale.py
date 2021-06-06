@@ -218,7 +218,7 @@ class DREAMUV_OT_uv_scale_step(bpy.types.Operator):
     bl_label = "scale"
     bl_options = {"UNDO"}
 
-    direction = bpy.props.StringProperty()
+    direction : bpy.props.StringProperty()
 
     def execute(self, context): 
         mesh = bpy.context.object.data

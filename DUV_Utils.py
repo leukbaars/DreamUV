@@ -628,4 +628,7 @@ class subrect:
     size = float()
     uvcoord = list()
 
+class trim:
+    uvcoord = list()
+
 
