@@ -125,7 +125,7 @@ class DREAMUV_OT_uv_rotate(bpy.types.Operator):
                         vert[self.bm.loops.layers.uv.active].uv.y = math.sin(delta) * (px-self.xcenter) +  math.cos(delta) * (py-self.ycenter) + self.ycenter
 
             #update mesh
-            bmesh.update_edit_mesh(self.mesh, False, False)
+            bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
 
         elif event.type == 'LEFTMOUSE':
             
@@ -149,7 +149,7 @@ class DREAMUV_OT_uv_rotate(bpy.types.Operator):
                         vert[self.bm.loops.layers.uv.active].uv.y = math.sin(delta) * (px-self.xcenter) +  math.cos(delta) * (py-self.ycenter) + self.ycenter
 
             #update mesh
-            bmesh.update_edit_mesh(self.mesh, False, False)
+            bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
             return {'CANCELLED'}
 
         return {'RUNNING_MODAL'}
@@ -235,7 +235,7 @@ class DREAMUV_OT_uv_rotate_step(bpy.types.Operator):
 
 
         #update mesh
-        bmesh.update_edit_mesh(mesh, False, False)
+        bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
 
 
 
