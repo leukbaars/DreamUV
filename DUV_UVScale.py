@@ -190,7 +190,7 @@ class DREAMUV_OT_uv_scale(bpy.types.Operator):
                         vert[self.bm.loops.layers.uv.active].uv.y=((deltay)*self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv.y)+((1-(deltay))*self.ycenter)
 
             #update mesh
-            bmesh.update_edit_mesh(self.mesh, False, False)
+            bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
 
         elif event.type == 'LEFTMOUSE':
             
@@ -207,7 +207,7 @@ class DREAMUV_OT_uv_scale(bpy.types.Operator):
                     for o,vert in enumerate(face.loops):
                         vert[self.bm.loops.layers.uv.active].uv = self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv
             #update mesh
-            bmesh.update_edit_mesh(self.mesh, False, False)
+            bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
             return {'CANCELLED'}
 
         return {'RUNNING_MODAL'}
@@ -311,7 +311,7 @@ class DREAMUV_OT_uv_scale_step(bpy.types.Operator):
 
 
         #update mesh
-        bmesh.update_edit_mesh(mesh, False, False)
+        bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
 
 
 

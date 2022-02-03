@@ -4,10 +4,10 @@
 bl_info = {
     "name": "DreamUV",
     "category": "UV",
-    "author": "Bram Eulaers",
+    "author": "Bram Eulaers, Draise",
     "description": "Edit selected faces'UVs directly inside the 3D Viewport. WIP. Check for updates @leukbaars",
     "blender": (2, 90, 0),
-    "version": (0, 9)
+    "version": (0, 9, 1)
 }
 
 import bpy

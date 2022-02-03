@@ -62,5 +62,5 @@ class DREAMUV_OT_uv_move_to_edge(bpy.types.Operator):
                             l[bm.loops.layers.uv.active].uv.x += xdist
                             l[bm.loops.layers.uv.active].uv.y += ydist
 
-        bmesh.update_edit_mesh(mesh, False, False)
+        bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
         return {'FINISHED'}

@@ -131,6 +131,6 @@ class DREAMUV_OT_uv_extend(bpy.types.Operator):
             l[uv_layer].uv.y += oy
             
         #bm.to_mesh(me)           
-        bmesh.update_edit_mesh(mesh, False, False)
+        bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
 
         return {'FINISHED'}

@@ -51,5 +51,5 @@ class DREAMUV_OT_uv_cycle(bpy.types.Operator):
                     loop[uv_layer].uv.x += xmin
                     loop[uv_layer].uv.y += ymin                
 
-        bmesh.update_edit_mesh(mesh, False, False)
+        bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
         return {'FINISHED'}
