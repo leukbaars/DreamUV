@@ -614,7 +614,7 @@ def square_fit(context):
                         loop_uv.uv.x *= edge[0]
                         loop_uv.uv.y *= edge[1]
 
-        bmesh.update_edit_mesh(me, True)
+        bmesh.update_edit_mesh(me)
         bpy.ops.uv.select_all(action='SELECT')
         #expand middle verts
         bpy.ops.uv.minimize_stretch(iterations=100)   
