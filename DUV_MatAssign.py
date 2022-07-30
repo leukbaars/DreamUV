@@ -1,7 +1,5 @@
 import bpy
-import math
 import bmesh
-from mathutils import Matrix, Vector
 
 class DREAMUV_OT_mat_assign(bpy.types.Operator):
     """Assigns the material from the active face to the selected faces."""
