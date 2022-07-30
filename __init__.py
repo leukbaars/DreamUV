@@ -6,7 +6,7 @@ bl_info = {
     "category": "UV",
     "author": "Bram Eulaers, Draise",
     "description": "Edit selected faces'UVs directly inside the 3D Viewport. WIP. Check for updates @leukbaars",
-    "blender": (2, 90, 0),
+    "blender": (3, 1, 0),
     "version": (0, 9, 1)
 }
 
@@ -27,6 +27,7 @@ from . import DUV_UVProject
 from . import DUV_UVUnwrap
 from . import DUV_UVInset
 from . import DUV_UVTrim
+from . import DUV_MatAssign
 
 import importlib
 if 'bpy' in locals():
@@ -45,6 +46,7 @@ if 'bpy' in locals():
     importlib.reload(DUV_UVUnwrap)
     importlib.reload(DUV_UVInset)
     importlib.reload(DUV_UVTrim)
+    importlib.reload(DUV_MatAssign)
 
 class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -177,8 +179,15 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         unwraptool=col.operator("uv.unwrap", text="Blender Unwrap", icon='UV')
         unwraptool.method='CONFORMAL'
         unwraptool.margin=0.001
-        
 
+        col.separator()
+        box = layout.box()
+        if bpy.context.object.mode != 'EDIT':
+            box.enabled = False
+        col = box.column(align=True)
+        col.label(text="Material Tools:")
+        col.operator("view3d.dreamuv_matassign", text="Transfer Material", icon="OUTLINER_OB_LATTICE")
+    
         col.separator()
         box = layout.box()
         if bpy.context.object.mode != 'EDIT':
@@ -261,6 +270,7 @@ classes = (
     DUV_UVInset.DREAMUV_OT_uv_inset,
     DUV_UVInset.DREAMUV_OT_uv_inset_step,
     DUV_UVTrim.DREAMUV_OT_uv_trim,
+    DUV_MatAssign.DREAMUV_OT_mat_assign
 )
 
 def poll_material(self, material):
