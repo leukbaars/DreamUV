@@ -28,6 +28,7 @@ from . import DUV_UVUnwrap
 from . import DUV_UVInset
 from . import DUV_UVTrim
 from . import DUV_MatAssign
+from . import DUV_UVTexelDensity
 
 import importlib
 if 'bpy' in locals():
@@ -47,6 +48,7 @@ if 'bpy' in locals():
     importlib.reload(DUV_UVInset)
     importlib.reload(DUV_UVTrim)
     importlib.reload(DUV_MatAssign)
+    importlib.reload(DUV_UVTexelDensity)
 
 class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -71,6 +73,11 @@ class DUVUVToolsPreferences(bpy.types.AddonPreferences):
         name="UV Rotate Snap",
         description="Rotate Angle Snap Size",
         default=45
+    )
+    set_texel_density : FloatProperty(
+        name="Set Texel Density",
+        description="Pixels per unit length.",
+        default=512.0
     )
 
 
@@ -130,6 +137,13 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         op = row.operator("view3d.dreamuv_uvscalestep", text="-Y")
         op.direction = "-Y"
         col.separator()
+        
+        row = col.row(align = True)
+        row.operator("view3d.dreamuv_texeldensity", text="Set Texel Density", icon="TEXTURE")
+        row = row.row(align = True)
+        row.prop(addon_prefs, 'set_texel_density', text="")
+        row = col.row(align = True)
+        col.separator()
 
         row = col.row(align = True)
         row.operator("view3d.dreamuv_uvrotate", text="Rotate", icon="FILE_REFRESH")
@@ -149,8 +163,8 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         op.direction = "x"
         op = row.operator("view3d.dreamuv_uvmirror", text="Mirror Y")
         op.direction = "y"
-
         col.separator()
+        
         row = col.row(align = True)
         op = row.operator("view3d.dreamuv_uvinsetstep", text="Inset", icon="FULLSCREEN_EXIT")
         op.direction = "in"
@@ -270,7 +284,8 @@ classes = (
     DUV_UVInset.DREAMUV_OT_uv_inset,
     DUV_UVInset.DREAMUV_OT_uv_inset_step,
     DUV_UVTrim.DREAMUV_OT_uv_trim,
-    DUV_MatAssign.DREAMUV_OT_mat_assign
+    DUV_MatAssign.DREAMUV_OT_mat_assign,
+    DUV_UVTexelDensity.DREAMUV_OT_texel_density
 )
 
 def poll_material(self, material):
@@ -300,7 +315,6 @@ def register():
         default = 1024.0,
         description = "",
         )
-    
     bpy.types.Scene.uvtransferxmin = bpy.props.FloatProperty (
         name = "uvtransferxmin",
         default = 0.0,
