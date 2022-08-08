@@ -18,22 +18,31 @@ class DREAMUV_OT_texel_density(bpy.types.Operator):
         mesh = ob.data
         bm = bmesh.new()
         bm = bmesh.from_edit_mesh(mesh)
-        # Make a copy of the original mesh so that we can restore it to a pre-triangulation state.
+        # Copy of the original mesh so that we can restore it to a pre-triangulation state.
         original_mesh = bm.copy()
         bm.faces.ensure_lookup_table()
         uv_layer = bm.loops.layers.uv.active
-
-        # Texel density: The amount of pixels that maps to one unit. Will be set in-editor.
+        # Default values.
         self.set_texel_density = 512.0
+        self.set_image_resolution = 512.0
         module_name = __name__.split('.')[0]
         addon_prefs = bpy.context.preferences.addons[module_name].preferences
         self.set_texel_density = addon_prefs.set_texel_density
+        self.set_image_resolution = addon_prefs.set_image_resolution
         target_texel_density = self.set_texel_density
-        # The resolution of the target texture. Need to accomodate for non-square textures at some point.
-        # Pull the image resolution automatically. Add an option to set it manually.
-        image_resolution = 64.0
-        # The amount of units that the texture covers. A 64x64 px texture at TD = 32 px covers 4 units.
-        texel_uv_multiplier = (image_resolution / target_texel_density) ** 2
+        target_image_resolution = self.set_image_resolution
+        # If custom image resolution is set to 0, fetch the texture's resolution automatically.
+        if self.set_image_resolution <= 0:
+            for face in bm.faces:
+                if face.select:
+                    if face.material_index >= 0:
+                        material = ob.material_slots[face.material_index].material
+                        if material.use_nodes:
+                            for x in material.node_tree.nodes:
+                                if x.type == "TEX_IMAGE":
+                                    target_image_resolution = x.image.size[0]
+
+        texel_uv_multiplier = (target_image_resolution / target_texel_density) ** 2
 
         scale_faces = {}
         scale_mult_list = []
@@ -55,7 +64,6 @@ class DREAMUV_OT_texel_density(bpy.types.Operator):
                     # Doesn't handle non-flat faces very well.
                     uv_area += tri_area( *(Vector( (*l[uv_layer].uv, 0) ) for l in tri.loops) )
                     tri_count += 1
-                    print("face_area: ", face_area, "; uv_area: ", uv_area)
     
                 scale_multiplier = sqrt(((uv_area * texel_uv_multiplier) / face_area)).real
                 scale_faces[f] = scale_multiplier

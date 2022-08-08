@@ -75,8 +75,13 @@ class DUVUVToolsPreferences(bpy.types.AddonPreferences):
         default=45
     )
     set_texel_density : FloatProperty(
-        name="Set Texel Density",
+        name="Texel Density",
         description="Pixels per unit length.",
+        default=512.0
+    )
+    set_image_resolution : FloatProperty(
+        name="Texture Resolution",
+        description="0 = fetch the texture resolution automatically",
         default=512.0
     )
 
@@ -139,9 +144,12 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         col.separator()
         
         row = col.row(align = True)
-        row.operator("view3d.dreamuv_texeldensity", text="Set Texel Density", icon="TEXTURE")
+        row.operator("view3d.dreamuv_texeldensity", text="Texel Density", icon="TEXTURE")
         row = row.row(align = True)
         row.prop(addon_prefs, 'set_texel_density', text="")
+        row = col.row(align = True)
+        #row.label(text="Image resolution")
+        row.prop(addon_prefs, 'set_image_resolution', text="Texture Resolution")
         row = col.row(align = True)
         col.separator()
 
