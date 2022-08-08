@@ -1,7 +1,7 @@
 from cmath import sqrt
 import bpy
 import bmesh
-from mathutils import Vector
+from mathutils import Vector 
 
 def tri_area(co1, co2, co3):
     return (co2-co1).cross(co3-co1).length/2.0
