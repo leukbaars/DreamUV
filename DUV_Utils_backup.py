@@ -288,23 +288,47 @@ def square_fit(context):
     for face in faces: 
         if len(face.loops) != 4 :
             quadmethod = False
+            print('no quad!')
+    if quadmethod:
+        print('quad!')
 
     #SLOW HERE, find faster way to test if selection is ring shaped
 
     #Unwrap and get the edge verts
+    bmesh.update_edit_mesh(obj.data)
     bpy.ops.uv.unwrap(method='CONFORMAL', margin=0.001)
     bpy.ops.mesh.region_to_loop()
 
+    obj = bpy.context.edit_object
+    me = obj.data
+    bm = bmesh.from_edit_mesh(me)
+
     edge_list = list()
     for e in bm.edges:
-        if e.select is True:
+        if e.select is True and e.seam is False:
             edge_list.append(e)
             #print(e)
-            
+    
+    #print("edge list")
+    #print(edge_list)
+
     #select faces again
     for f in faces:
         f.select = True      
     #get start loop (this makes sure we loop in the right direction)
+
+    #add seams to edge list also?
+    for e in bm.edges:
+        if e.seam is True:
+            print("seam")
+            for f in e.link_faces:
+                print("seam faces:")
+                print(f.select)
+                if f.select is True:
+                    print("adding seam")
+                    edge_list.append(e)
+
+
     startloop = None
 
     if(len(edge_list) == 0):
@@ -321,22 +345,52 @@ def square_fit(context):
     for e in edge_list:
         e.select = True
 
+
+
     sorted_vert_list.append(startloop.vert)
     startloop.edge.select = False
     sorted_vert_list.append(startloop.link_loop_next.vert)
 
-    for i in range(1,len(edge_list)-1):
-        #catch if a patch is donut shaped:
-        if i >= len(sorted_vert_list):
-            for f in faces:
-                f.select = True
-            bmesh.update_edit_mesh(obj.data)
-            return False
+    #for i in range(1,len(edge_list)-1):
 
+        #catch if a patch is donut shaped:
+        #if i >= len(sorted_vert_list):
+        #    for f in faces:
+        #        f.select = True
+        #    bmesh.update_edit_mesh(obj.data)
+        #    print("donut shape")
+        #    break
+
+        #note: make it take a turn here when finding a seam!
+
+
+    #    for e in sorted_vert_list[i].link_edges:
+    #        if e.select is True:
+    #            sorted_vert_list.append(e.other_vert(sorted_vert_list[i]))
+    #            e.select = False
+
+    nextvert = startloop.link_loop_next.vert
+    i = 1
+    while sorted_vert_list[i] is not startloop.vert or i == 500:
+
+
+
+        #note: make it take a turn here when finding a seam!
         for e in sorted_vert_list[i].link_edges:
             if e.select is True:
                 sorted_vert_list.append(e.other_vert(sorted_vert_list[i]))
-                e.select = False
+                e.select = False 
+
+
+
+
+        i += 1
+    sorted_vert_list.pop() #remove last item which is the same as the first anyways
+    print(sorted_vert_list)
+
+
+
+
 
     #select faces again
     for f in faces:
@@ -362,6 +416,7 @@ def square_fit(context):
         #check failcase of zero length vector:
         if vector1.length == 0 or vector2.length == 0:
             bmesh.update_edit_mesh(obj.data)
+            print("zero vector")
             return False
         angle = -math.degrees(vector1.angle_signed(vector2))
         if angle < 0:
@@ -371,19 +426,24 @@ def square_fit(context):
     
     #find concaves:
     for i in range(len(sorted_angle_list)):
+        #print(sorted_angle_list[i])
         if sorted_angle_list[i] > 230:
             distorted = True
+            print("distorted!")
             bmesh.update_edit_mesh(obj.data)
             return False
 
     #angle test:
+    #print("angles")
     #test if more than 4 90 degrees:
     NCount = 0
     for i in range(len(sorted_angle_list)):
+        #print(sorted_angle_list[i])
         if sorted_angle_list[i] < 100:
             NCount += 1
     if NCount > 4:
         distorted = True
+        print("distorted2!")
 
     #now find top 4 angles
     topangles = list()
@@ -394,9 +454,12 @@ def square_fit(context):
             if sorted_angle_list[i] < top:
                 top = sorted_angle_list[i]
                 topindex = i
+        #print(sorted_angle_list[topindex])
+        
         if o == 3:
             if sorted_angle_list[topindex] > 120:
                 distorted = True
+                print("distorted3!")
 
         topangles.append(topindex)
         sorted_angle_list[topindex] = 999 #lol
@@ -408,6 +471,12 @@ def square_fit(context):
     sorted_corner_list[topangles[1]] = True
     sorted_corner_list[topangles[2]] = True
     sorted_corner_list[topangles[3]] = True
+
+
+    
+
+
+
 
     #find bottom left corner (using distance method seems to work well)
     distance = 2
@@ -424,12 +493,25 @@ def square_fit(context):
         sorted_uv_list.append(sorted_uv_list.pop(0))
         sorted_vert_list.append(sorted_vert_list.pop(0))
 
+    #print("THESE ARE THE CORNERS")
+    #print(sorted_corner_list)
     #create coord list:
+
     cornerz = list()
 
     for i in range(len(sorted_vert_list)):
         if sorted_corner_list[i] is True:
+            #print(sorted_vert_list[i].co.z)
             cornerz.append(sorted_vert_list[i].co.z)
+
+    #print(cornerz)
+    #avgedge1 = cornerz[0] + cornerz[1]
+    #avgedge2 = cornerz[0] + cornerz[3]
+    #print(avgedge1)
+    #print(avgedge2)
+
+
+
 
     sorted_edge_ratios = list()
 
@@ -451,6 +533,7 @@ def square_fit(context):
 
     
     if quadmethod: 
+        print("running quadmethod")
     #MAP FIRST QUAD
         edge1 = (faces[0].loops[0].vert.co.xyz - faces[0].loops[1].vert.co.xyz).length
         edge2 = (faces[0].loops[1].vert.co.xyz - faces[0].loops[2].vert.co.xyz).length
@@ -467,7 +550,10 @@ def square_fit(context):
         bm.faces.active = faces[0]
 
         #UNWRAP ADJACENT
+        bmesh.update_edit_mesh(obj.data)
         bpy.ops.uv.follow_active_quads()
+        obj = bpy.context.view_layer.objects.active
+        bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
 
         #return
@@ -522,7 +608,13 @@ def square_fit(context):
                     loop[uv_layer].uv.x *= edge2
                     loop[uv_layer].uv.y *= edge1
 
+        bmesh.update_edit_mesh(obj.data)
+
+
     if quadmethod is False:
+        print("not running quadmethod")
+        
+
         if distorted is False:
             #NOW LAY OUT ALL EDGE UVs
             i = 0
@@ -575,9 +667,10 @@ def square_fit(context):
                         loop_uv.uv.x *= edge[0]
                         loop_uv.uv.y *= edge[1]
 
+        bmesh.update_edit_mesh(me, True)
         bpy.ops.uv.select_all(action='SELECT')
         #expand middle verts
-        bpy.ops.uv.minimize_stretch(iterations=50)   
+        bpy.ops.uv.minimize_stretch(iterations=100)   
         #return true if rect fit was succesful
         return not distorted     
 

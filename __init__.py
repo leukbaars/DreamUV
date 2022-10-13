@@ -4,14 +4,14 @@
 bl_info = {
     "name": "DreamUV",
     "category": "UV",
-    "author": "Bram Eulaers, Draise",
+    "author": "Bram Eulaers",
     "description": "Edit selected faces'UVs directly inside the 3D Viewport. WIP. Check for updates @leukbaars",
     "blender": (2, 90, 0),
-    "version": (0, 9, 1)
+    "version": (0, 9)
 }
 
 import bpy
-from bpy.props import EnumProperty, BoolProperty, FloatProperty, PointerProperty
+from bpy.props import EnumProperty, BoolProperty, FloatProperty, IntProperty, PointerProperty
 from . import DUV_UVTranslate 
 from . import DUV_UVRotate 
 from . import DUV_UVScale 
@@ -27,6 +27,7 @@ from . import DUV_UVProject
 from . import DUV_UVUnwrap
 from . import DUV_UVInset
 from . import DUV_UVTrim
+from . import DUV_ApplyMaterial
 
 import importlib
 if 'bpy' in locals():
@@ -45,6 +46,7 @@ if 'bpy' in locals():
     importlib.reload(DUV_UVUnwrap)
     importlib.reload(DUV_UVInset)
     importlib.reload(DUV_UVTrim)
+    importlib.reload(DUV_ApplyMaterial)
 
 class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -221,19 +223,59 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         row.prop(context.scene, "duv_usemirrorx", icon="EVENT_X", text="")
         row.prop(context.scene, "duv_usemirrory", icon="EVENT_Y", text="")
 
-        #col.separator()
-        #box = layout.box()
-        #col = box.column(align=True)
-        #col.label(text="Trim Tool:")
-        #row = col.row(align = True)
-        #row.operator("view3d.dreamuv_uvtrim", text="TRIM", icon="MOD_UVPROJECT")
-        #row.prop_search(context.scene, "trim_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
+        if context.scene.duv_experimentaltools is True:
+            col.separator()
+                    
+            box = layout.box()
+            col = box.column(align=True)
+            col.label(text="Trim Tool:")
+            row = col.row(align = True)
+            
+            row.operator("view3d.dreamuv_uvtrim", text="TRIM", icon="MOD_UVPROJECT")
+            row.prop_search(context.scene, "trim_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
+            row = col.row(align = True)
+            row.prop(context.scene, "trim_index", text="")
+            row = col.row(align = True) 
+            op = row.operator("view3d.dreamuv_uvtrimnext", text="previous", icon="MOD_UVPROJECT")
+            op.reverse = True
+            op = row.operator("view3d.dreamuv_uvtrimnext", text="next", icon="MOD_UVPROJECT")
+            op.reverse = False
+            
+            col.separator()
+            
+            row = col.row(align = True)
+            row.operator("view3d.dreamuv_uvcap", text="CAP", icon="MOD_UVPROJECT")
+            row = col.row(align = True)
+            row.prop(context.scene, "cap_index", text="")
+            row = col.row(align = True) 
+            op = row.operator("view3d.dreamuv_uvcapnext", text="previous", icon="MOD_UVPROJECT")
+            op.reverse = True
+            op = row.operator("view3d.dreamuv_uvcapnext", text="next", icon="MOD_UVPROJECT")
+            op.reverse = False
+            
+            col.separator()
+            row = col.row(align = True)
+            row.prop(context.scene, "duv_trimuseinset", icon="FULLSCREEN_EXIT", text="use inset")
+            row.separator()
+            row.prop(context.scene, "hotspotinsetpixels", text="")
+            row.prop(context.scene, "hotspotinsettexsize", text="")
+
+            col.separator()
+            box = layout.box()
+            col = box.column(align=True)
+
+            row = col.row(align = True) 
+            op = row.operator("view3d.dreamuv_apply_material", text="apply material", icon="MOD_UVPROJECT")
+            row = col.row(align = True) 
+            row.prop_search(context.scene, "duv_hotspotmaterial", bpy.data, "materials", )
+        
 
         col = self.layout.column(align = True)
         col2= self.layout.column(align = True)
         col2.label(text="DreamUV Beta")
-        col2.enabled = False
-        col2.label(text="send feedback to @leukbaars!")
+        row = col2.row(align = True) 
+        row.label(text="send feedback to @leukbaars!")
+        #row.prop(context.scene, "duv_experimentaltools", icon="HEART", text="")
 
 
 def prefs():
@@ -261,6 +303,10 @@ classes = (
     DUV_UVInset.DREAMUV_OT_uv_inset,
     DUV_UVInset.DREAMUV_OT_uv_inset_step,
     DUV_UVTrim.DREAMUV_OT_uv_trim,
+    DUV_UVTrim.DREAMUV_OT_uv_cap,
+    DUV_UVTrim.DREAMUV_OT_uv_trimnext,
+    DUV_UVTrim.DREAMUV_OT_uv_capnext,
+    DUV_ApplyMaterial.DREAMUV_OT_apply_material,
 )
 
 def poll_material(self, material):
@@ -270,105 +316,31 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Scene.subrect_atlas = bpy.props.PointerProperty (
-        name="atlas",
-        type=bpy.types.Object,
-        description="atlas object",
-        )
-    bpy.types.Scene.trim_atlas = bpy.props.PointerProperty (
-        name="trim_atlas",
-        type=bpy.types.Object,
-        description="trim atlas",
-        )
-    bpy.types.Scene.uvinsetpixels = bpy.props.FloatProperty (
-        name = "uv inset pixel amount",
-        default = 1.0,
-        description = "",
-        )
-    bpy.types.Scene.uvinsettexsize = bpy.props.FloatProperty (
-        name = "uv inset texture size",
-        default = 1024.0,
-        description = "",
-        )
-    
-    bpy.types.Scene.uvtransferxmin = bpy.props.FloatProperty (
-        name = "uvtransferxmin",
-        default = 0.0,
-        description = "uv left bottom corner X",
-        )
-    bpy.types.Scene.uvtransferymin = bpy.props.FloatProperty (
-        name = "uvtransferymin",
-        default = 0.0,
-        description = "uv left bottom corner Y",
-        )
-    bpy.types.Scene.uvtransferxmax = bpy.props.FloatProperty (
-        name = "uvtransferxmax",
-        default = 1.0,
-        description = "uv right top corner X",
-        )
-    bpy.types.Scene.uvtransferymax = bpy.props.FloatProperty (
-        name = "uvtransferymax",
-        default = 1.0,
-        description = "uv right top corner Y",
-        )
-    bpy.types.Scene.duv_useorientation = bpy.props.BoolProperty (
-        name = "duv_useorientation",
-        default = False,
-        description = "Align UVs with world orientation",
-        )
-    bpy.types.Scene.duv_usemirrorx = bpy.props.BoolProperty (
-        name = "duv_usemirrorx",
-        default = True,
-        description = "Randomly mirror faces on the x-axis",
-        )
-    bpy.types.Scene.duv_usemirrory = bpy.props.BoolProperty (
-        name = "duv_usemirrory",
-        default = True,
-        description = "Randomly mirror faces on the y-axis",
-        )
-    bpy.types.Scene.duvhotspotscale = bpy.props.FloatProperty (
-        name = "duvhotspotscale",
-        default = 1.0,
-        description = "hotspotting scale multiplier",
-        )
-    bpy.types.Scene.duv_hotspotmaterial = bpy.props.PointerProperty (
-        name="duv_hotspotmaterial",
-        type=bpy.types.Material,
-        poll=poll_material,
-        description="hotspot material",
-        )
-    bpy.types.Scene.duv_hotspotuseinset = bpy.props.BoolProperty (
-        name = "duv_hotspotuseinset",
-        default = False,
-        description = "Use inset when hotspotting",
-        )
-    bpy.types.Scene.hotspotinsetpixels = bpy.props.FloatProperty (
-        name = "hotspot inset pixel amount",
-        default = 1.0,
-        description = "",
-        )
-    bpy.types.Scene.hotspotinsettexsize = bpy.props.FloatProperty (
-        name = "hotspot texture size",
-        default = 1024.0,
-        description = "",
-        )
+    bpy.types.Scene.subrect_atlas = bpy.props.PointerProperty (name="atlas",type=bpy.types.Object,description="atlas object")
+    bpy.types.Scene.trim_atlas = bpy.props.PointerProperty (name="trim_atlas",type=bpy.types.Object,description="trim atlas")
+    bpy.types.Scene.trim_index = bpy.props.IntProperty (name = "trim_index",default = 0,description = "trim index")
+    bpy.types.Scene.cap_index = bpy.props.IntProperty (name = "cap_index",default = 0,description = "cap index")
+    bpy.types.Scene.duv_trimuseinset = bpy.props.BoolProperty (name = "duv_trimuseinset",default = False,description = "Use inset when trimming")
+    bpy.types.Scene.uvinsetpixels = bpy.props.FloatProperty (name = "uv inset pixel amount",default = 1.0,description = "")
+    bpy.types.Scene.uvinsettexsize = bpy.props.FloatProperty (name = "uv inset texture size",default = 1024.0,description = "")
+    bpy.types.Scene.uvtransferxmin = bpy.props.FloatProperty (name = "uvtransferxmin",default = 0.0,description = "uv left bottom corner X")
+    bpy.types.Scene.uvtransferymin = bpy.props.FloatProperty (name = "uvtransferymin",default = 0.0,description = "uv left bottom corner Y")
+    bpy.types.Scene.uvtransferxmax = bpy.props.FloatProperty (name = "uvtransferxmax",default = 1.0,description = "uv right top corner X")
+    bpy.types.Scene.uvtransferymax = bpy.props.FloatProperty (name = "uvtransferymax",default = 1.0,description = "uv right top corner Y")
+    bpy.types.Scene.duv_useorientation = bpy.props.BoolProperty (name = "duv_useorientation",default = False,description = "Align UVs with world orientation")
+    bpy.types.Scene.duv_usemirrorx = bpy.props.BoolProperty (name = "duv_usemirrorx",default = True,description = "Randomly mirror faces on the x-axis")
+    bpy.types.Scene.duv_usemirrory = bpy.props.BoolProperty (name = "duv_usemirrory",default = True,description = "Randomly mirror faces on the y-axis")
+    bpy.types.Scene.duvhotspotscale = bpy.props.FloatProperty (name = "duvhotspotscale",default = 1.0,description = "hotspotting scale multiplier")
+    bpy.types.Scene.duv_hotspotmaterial = bpy.props.PointerProperty (name="duv_hotspotmaterial",type=bpy.types.Material,poll=poll_material,description="hotspot material")
+    bpy.types.Scene.duv_hotspotuseinset = bpy.props.BoolProperty (name = "duv_hotspotuseinset",default = False,description = "Use inset when hotspotting")
+    bpy.types.Scene.hotspotinsetpixels = bpy.props.FloatProperty (name = "hotspot inset pixel amount",default = 1.0,description = "")
+    bpy.types.Scene.hotspotinsettexsize = bpy.props.FloatProperty (name = "hotspot texture size",default = 1024.0,description = "")
+    bpy.types.Scene.duv_experimentaltools = bpy.props.BoolProperty (name = "duv_experimentaltools",default = False,description = "Show experimental tools")
     
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-
-    del bpy.types.Scene.subrect_atlas
-    del bpy.types.Scene.trim_atlas
-    del bpy.types.Scene.uvtransferxmin
-    del bpy.types.Scene.uvtransferymin
-    del bpy.types.Scene.uvtransferxmax
-    del bpy.types.Scene.uvtransferymax
-    del bpy.types.Scene.duv_useorientation
-    del bpy.types.Scene.duv_usemirrorx
-    del bpy.types.Scene.duv_usemirrory
-    del bpy.types.Scene.duvhotspotscale
-    del bpy.types.Scene.duv_hotspotmaterial
 
 if __name__ == "__main__":
     register()

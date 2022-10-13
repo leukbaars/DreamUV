@@ -190,7 +190,7 @@ class DREAMUV_OT_uv_inset(bpy.types.Operator):
                         vert[self.bm.loops.layers.uv.active].uv.y=((deltay)*self.bm2.faces[i].loops[o][self.bm2.loops.layers.uv.active].uv.y)+((1-(deltay))*self.ycenter)
 
             #update mesh
-            bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
+            bmesh.update_edit_mesh(self.mesh, False, False)
 
         elif event.type == 'LEFTMOUSE':
             
