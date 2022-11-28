@@ -89,7 +89,14 @@ class DREAMUV_OT_hotspotter(bpy.types.Operator):
         bpy.ops.mesh.edge_split(type='EDGE')
         bpy.ops.mesh.select_all(action='DESELECT')
 
-
+        
+        
+        
+        
+        
+        
+        
+        
 
         #select all faces to be hotspotted again:
         
@@ -168,6 +175,9 @@ class DREAMUV_OT_hotspotter(bpy.types.Operator):
             #try fitting selection to square
             is_rect = DUV_Utils.square_fit(context)
             if is_rect is False:
+                
+                #return {'FINISHED'}
+            
                 bmesh.update_edit_mesh(obj.data)
                 bpy.ops.uv.unwrap(method='CONFORMAL', margin=0.001)
                 uv_layer = bm.loops.layers.uv.verify()
