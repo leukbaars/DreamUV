@@ -33,6 +33,12 @@ class DREAMUV_OT_uv_cycle(bpy.types.Operator):
                 ymin = min(ymin, vert[uv_layer].uv.y)
                 ymax = max(ymax, vert[uv_layer].uv.y)
 
+        #prevent divide by 0:
+        if (xmax - xmin) == 0:
+            xmin = .1
+        if (ymax - ymin) == 0:
+            ymin = .1
+
         for face in faces:
                 for loop in face.loops:
 

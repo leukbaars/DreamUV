@@ -216,7 +216,6 @@ class DREAMUV_OT_uv_translate(bpy.types.Operator):
                     vert[self.bm.loops.layers.uv.active].uv = origin_uv + uv_offset
 
             # update mesh
-            #bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
             bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
 
         elif event.type == 'LEFTMOUSE':
@@ -234,7 +233,6 @@ class DREAMUV_OT_uv_translate(bpy.types.Operator):
                         reset_uv = self.bm_orig.faces[i].loops[o][self.bm_orig.loops.layers.uv.active].uv
                         vert[self.bm.loops.layers.uv.active].uv = reset_uv
             # update mesh
-            #bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
             bmesh.update_edit_mesh(self.mesh, loop_triangles=False, destructive=False)
             return {'CANCELLED'}
 
@@ -277,9 +275,7 @@ class DREAMUV_OT_uv_translate_step(bpy.types.Operator):
                     loop[uv_layer].uv.y += ymove
 
         #update mesh
-        #bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
         bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
-        
 
 
 
