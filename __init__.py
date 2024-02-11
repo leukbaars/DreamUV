@@ -6,7 +6,7 @@ bl_info = {
     "category": "UV",
     "author": "Bram Eulaers",
     "description": "Edit selected faces'UVs directly inside the 3D Viewport. WIP. Check for updates @leukbaars",
-    "blender": (2, 90, 0),
+    "blender": (3, 1, 0),
     "version": (0, 9)
 }
 
@@ -28,6 +28,7 @@ from . import DUV_UVUnwrap
 from . import DUV_UVInset
 from . import DUV_UVTrim
 from . import DUV_ApplyMaterial
+from . import DUV_UVTexelDensity
 
 import importlib
 if 'bpy' in locals():
@@ -47,6 +48,7 @@ if 'bpy' in locals():
     importlib.reload(DUV_UVInset)
     importlib.reload(DUV_UVTrim)
     importlib.reload(DUV_ApplyMaterial)
+    importlib.reload(DUV_UVTexelDensity)
 
 class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -71,6 +73,16 @@ class DUVUVToolsPreferences(bpy.types.AddonPreferences):
         name="UV Rotate Snap",
         description="Rotate Angle Snap Size",
         default=45
+    )
+    set_texel_density : FloatProperty(
+        name="Texel Density",
+        description="Pixels per unit length.",
+        default=512.0
+    )
+    set_image_resolution : FloatProperty(
+        name="Texture Resolution",
+        description="0 = fetch the texture resolution automatically",
+        default=512.0
     )
 
 
@@ -130,6 +142,16 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         op = row.operator("view3d.dreamuv_uvscalestep", text="-Y")
         op.direction = "-Y"
         col.separator()
+        
+        row = col.row(align = True)
+        row.operator("view3d.dreamuv_texeldensity", text="Texel Density", icon="TEXTURE")
+        row = row.row(align = True)
+        row.prop(addon_prefs, 'set_texel_density', text="")
+        row = col.row(align = True)
+        #row.label(text="Image resolution")
+        row.prop(addon_prefs, 'set_image_resolution', text="Texture Resolution")
+        row = col.row(align = True)
+        col.separator()
 
         row = col.row(align = True)
         row.operator("view3d.dreamuv_uvrotate", text="Rotate", icon="FILE_REFRESH")
@@ -151,6 +173,7 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         op.direction = "y"
 
         col.separator()
+        
         row = col.row(align = True)
         op = row.operator("view3d.dreamuv_uvinsetstep", text="Inset", icon="FULLSCREEN_EXIT")
         op.direction = "in"
@@ -179,8 +202,7 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         unwraptool=col.operator("uv.unwrap", text="Blender Unwrap", icon='UV')
         unwraptool.method='CONFORMAL'
         unwraptool.margin=0.001
-        
-
+    
         col.separator()
         box = layout.box()
         if bpy.context.object.mode != 'EDIT':
@@ -307,6 +329,7 @@ classes = (
     DUV_UVTrim.DREAMUV_OT_uv_trimnext,
     DUV_UVTrim.DREAMUV_OT_uv_capnext,
     DUV_ApplyMaterial.DREAMUV_OT_apply_material,
+    DUV_UVTexelDensity.DREAMUV_OT_texel_density
 )
 
 def poll_material(self, material):
