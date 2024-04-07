@@ -322,7 +322,7 @@ def donut_uv_fixer(context):
     startloop.edge.select = False
     sorted_vert_list.append(startloop.link_loop_next.vert)
     
-    #print("CHECKING DOUNt!!!!")
+    print("CHECKING DOUNt!!!!")
     for i in range(1,len(edge_list)-1):
         #catch if a patch is donut shaped:
         if i >= len(sorted_vert_list):

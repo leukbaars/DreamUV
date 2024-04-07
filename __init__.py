@@ -18,7 +18,8 @@ from . import DUV_UVScale
 from . import DUV_UVExtend 
 from . import DUV_UVStitch 
 from . import DUV_UVTransfer 
-from . import DUV_UVCycle 
+from . import DUV_UVCycle
+from . import DUV_UVCopy
 from . import DUV_UVMirror 
 from . import DUV_UVMoveToEdge
 from . import DUV_Utils
@@ -28,6 +29,7 @@ from . import DUV_UVUnwrap
 from . import DUV_UVInset
 from . import DUV_UVTrim
 from . import DUV_ApplyMaterial
+from . import DUV_UVBoxmap
 
 import importlib
 if 'bpy' in locals():
@@ -38,6 +40,7 @@ if 'bpy' in locals():
     importlib.reload(DUV_UVStitch)
     importlib.reload(DUV_UVTransfer) 
     importlib.reload(DUV_UVCycle) 
+    importlib.reload(DUV_UVCopy)
     importlib.reload(DUV_UVMirror) 
     importlib.reload(DUV_UVMoveToEdge)
     importlib.reload(DUV_Utils)
@@ -47,6 +50,7 @@ if 'bpy' in locals():
     importlib.reload(DUV_UVInset)
     importlib.reload(DUV_UVTrim)
     importlib.reload(DUV_ApplyMaterial)
+    importlib.reload(DUV_UVBoxmap)
 
 class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
@@ -211,7 +215,7 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         row.label(text="Hotspot material:")
         row.prop_search(context.scene, "duv_hotspotmaterial", bpy.data, "materials", text="")
         row = col.row(align = True)
-        row.prop(context.scene, "duv_hotspotuseinset", icon="FULLSCREEN_EXIT", text="use inset")
+        row.prop(context.scene, "duv_hotspotuseinset", icon="FULLSCREEN_EXIT", text="inset")
         row.separator()
         row.prop(context.scene, "hotspotinsetpixels", text="")
         row.prop(context.scene, "hotspotinsettexsize", text="")
@@ -222,60 +226,111 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         row.prop(context.scene, "duv_useorientation", icon="EVENT_W", text="")
         row.prop(context.scene, "duv_usemirrorx", icon="EVENT_X", text="")
         row.prop(context.scene, "duv_usemirrory", icon="EVENT_Y", text="")
+        row.prop(context.scene, "duv_autoboxmap", icon="EVENT_B", text="")
+        row.prop(context.scene, "duv_hotspot_uv1", icon="IPO_SINE", text="")
+        row.prop(context.scene, "duv_hotspot_uv2", icon="IPO_QUAD", text="")
 
-        if context.scene.duv_experimentaltools is True:
-            col.separator()
-                    
-            box = layout.box()
-            col = box.column(align=True)
-            col.label(text="Trim Tool:")
-            row = col.row(align = True)
-            
-            row.operator("view3d.dreamuv_uvtrim", text="TRIM", icon="MOD_UVPROJECT")
-            row.prop_search(context.scene, "trim_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
-            row = col.row(align = True)
-            row.prop(context.scene, "trim_index", text="")
-            row = col.row(align = True) 
-            op = row.operator("view3d.dreamuv_uvtrimnext", text="previous", icon="MOD_UVPROJECT")
-            op.reverse = True
-            op = row.operator("view3d.dreamuv_uvtrimnext", text="next", icon="MOD_UVPROJECT")
-            op.reverse = False
-            
-            col.separator()
-            
-            row = col.row(align = True)
-            row.operator("view3d.dreamuv_uvcap", text="CAP", icon="MOD_UVPROJECT")
-            row = col.row(align = True)
-            row.prop(context.scene, "cap_index", text="")
-            row = col.row(align = True) 
-            op = row.operator("view3d.dreamuv_uvcapnext", text="previous", icon="MOD_UVPROJECT")
-            op.reverse = True
-            op = row.operator("view3d.dreamuv_uvcapnext", text="next", icon="MOD_UVPROJECT")
-            op.reverse = False
-            
-            col.separator()
-            row = col.row(align = True)
-            row.prop(context.scene, "duv_trimuseinset", icon="FULLSCREEN_EXIT", text="use inset")
-            row.separator()
-            row.prop(context.scene, "hotspotinsetpixels", text="")
-            row.prop(context.scene, "hotspotinsettexsize", text="")
+        #trim
+        col.separator()
+        box = layout.box()
+        if bpy.context.object.mode != 'EDIT':
+            box.enabled = False
+        col = box.column(align=True)
+        col.label(text="Trim Tool:")
+        row = col.row(align = True)
+        
+        row.label(text="Trim/Cap Atlas:")
+        row.prop_search(context.scene, "trim_atlas", context.scene, "objects", text="", icon="LINENUMBERS_ON")
+        row = col.row(align = True)
+        #row.prop(context.scene, "trim_index", text="")
+        row.label(text="Trim index: "+str(context.scene.trim_index))
+        #row = col.row(align = True) 
+        op = row.operator("view3d.dreamuv_uvtrimnext", text=" ", icon="BACK")
+        op.reverse = True
+        op = row.operator("view3d.dreamuv_uvtrimnext", text=" ", icon="FORWARD")
+        op.reverse = False
+        
+        row = col.row(align = True)
+        row.label(text="Cap index: "+str(context.scene.cap_index))
+        #row = col.row(align = True) 
+        op = row.operator("view3d.dreamuv_uvcapnext", text=" ", icon="BACK")
+        op.reverse = True
+        op = row.operator("view3d.dreamuv_uvcapnext", text=" ", icon="FORWARD")
+        op.reverse = False
+        
+        row = col.row(align = True)
+        row.enabled = not context.scene.duv_uvtrim_randomshift
+        row.prop(context.scene, "duv_uvtrim_bounds", icon="CENTER_ONLY", text="bounds")
+        row.separator()
+        row.prop(context.scene, "duv_uvtrim_min", text="")
+        row.prop(context.scene, "duv_uvtrim_max", text="")
+        
+        col.separator()
+        row = col.row(align = True) 
+        row.operator("view3d.dreamuv_uvtrim", text="Trim", icon="SEQ_SEQUENCER")
 
-            col.separator()
-            box = layout.box()
-            col = box.column(align=True)
+        row.operator("view3d.dreamuv_uvcap", text="Cap", icon="MOD_BUILD")
+        
+        row.prop(context.scene, "duv_uvtrim_randomshift", icon="NLA_PUSHDOWN", text="")
+        row.prop(context.scene, "duv_autoboxmaptrim", icon="EVENT_B", text="")
+        row.prop(context.scene, "duv_trimcap_uv1", icon="IPO_SINE", text="")
+        row.prop(context.scene, "duv_trimcap_uv2", icon="IPO_QUAD", text="")
+        
+        
+        
+        #boxmap
+        col.separator()
+        box = layout.box()
+        col = box.column(align=True)
+        col.label(text="Boxmapping Tool:")
+        row = col.row(align = True)
+        row.label(text="Box Reference:")
+        row.prop_search(context.scene, "uv_box", context.scene, "objects", text="", icon="MOD_MULTIRES")
+        row = col.row(align = True)
+        row.operator("view3d.dreamuv_uvboxmap", text="Boxmap", icon="FILE_3D")
+        row.prop(context.scene, "duv_boxmap_uv1", icon="IPO_SINE", text="")
+        row.prop(context.scene, "duv_boxmap_uv2", icon="IPO_QUAD", text="")
+        
+               
+        col.separator()
+        box = layout.box()
+        col = box.column(align=True)
+        col.label(text="UV sets:")
+        row = col.row(align = True)
 
-            row = col.row(align = True) 
-            op = row.operator("view3d.dreamuv_apply_material", text="apply material", icon="MOD_UVPROJECT")
-            row = col.row(align = True) 
-            row.prop_search(context.scene, "duv_hotspotmaterial", bpy.data, "materials", )
+        op = row.operator("view3d.dreamuv_uvcopy", text="copy uv1->2", icon="XRAY")
+        op.reverse = False
+        op = row.operator("view3d.dreamuv_uvcopy", text="copy uv2->1", icon="XRAY")
+        op.reverse = True
+        
+        if bpy.context.object.type == 'MESH':
+            me = bpy.context.object.data
+            #me = bpy.context.object.mesh
+
+            row = col.row()
+            col = row.column()
+
+            col.template_list("MESH_UL_uvmaps", "uvmaps", me, "uv_layers", me.uv_layers, "active_index", rows=2)
+            col = row.column(align=True)
+            col.operator("mesh.uv_texture_add", icon='ADD', text="")
+            col.operator("mesh.uv_texture_remove", icon='REMOVE', text="")
+        
+        #context.scene.duv_experimentaltools = True
+        #if context.scene.duv_experimentaltools is True:
+        col.separator()
+                
+        
+
         
 
         col = self.layout.column(align = True)
         col2= self.layout.column(align = True)
-        col2.label(text="DreamUV Beta")
+        col2.label(text="Send feedback to:")
         row = col2.row(align = True) 
-        row.label(text="send feedback to @leukbaars!")
-        #row.prop(context.scene, "duv_experimentaltools", icon="HEART", text="")
+        row.label(text="@Leukbaars@mastodon.gamedev.place")
+        row.prop(context.scene, "duv_experimentaltools", icon="HEART", text="")
+        
+        
 
 
 def prefs():
@@ -295,6 +350,7 @@ classes = (
     DUV_UVTransfer.DREAMUV_OT_uv_transfer,
     DUV_UVTransfer.DREAMUV_OT_uv_transfer_grab,
     DUV_UVCycle.DREAMUV_OT_uv_cycle,
+    DUV_UVCopy.DREAMUV_OT_uv_copy,
     DUV_UVMirror.DREAMUV_OT_uv_mirror,
     DUV_UVMoveToEdge.DREAMUV_OT_uv_move_to_edge,
     DUV_UVProject.DREAMUV_OT_uv_project,
@@ -307,6 +363,7 @@ classes = (
     DUV_UVTrim.DREAMUV_OT_uv_trimnext,
     DUV_UVTrim.DREAMUV_OT_uv_capnext,
     DUV_ApplyMaterial.DREAMUV_OT_apply_material,
+    DUV_UVBoxmap.DREAMUV_OT_uv_boxmap,
 )
 
 def poll_material(self, material):
@@ -317,6 +374,7 @@ def register():
         bpy.utils.register_class(cls)
 
     bpy.types.Scene.subrect_atlas = bpy.props.PointerProperty (name="atlas",type=bpy.types.Object,description="atlas object")
+    bpy.types.Scene.uv_box = bpy.props.PointerProperty (name="uvbox",type=bpy.types.Object,description="uv box")
     bpy.types.Scene.trim_atlas = bpy.props.PointerProperty (name="trim_atlas",type=bpy.types.Object,description="trim atlas")
     bpy.types.Scene.trim_index = bpy.props.IntProperty (name = "trim_index",default = 0,description = "trim index")
     bpy.types.Scene.cap_index = bpy.props.IntProperty (name = "cap_index",default = 0,description = "cap index")
@@ -330,12 +388,25 @@ def register():
     bpy.types.Scene.duv_useorientation = bpy.props.BoolProperty (name = "duv_useorientation",default = False,description = "Align UVs with world orientation")
     bpy.types.Scene.duv_usemirrorx = bpy.props.BoolProperty (name = "duv_usemirrorx",default = True,description = "Randomly mirror faces on the x-axis")
     bpy.types.Scene.duv_usemirrory = bpy.props.BoolProperty (name = "duv_usemirrory",default = True,description = "Randomly mirror faces on the y-axis")
-    bpy.types.Scene.duvhotspotscale = bpy.props.FloatProperty (name = "duvhotspotscale",default = 1.0,description = "hotspotting scale multiplier")
-    bpy.types.Scene.duv_hotspotmaterial = bpy.props.PointerProperty (name="duv_hotspotmaterial",type=bpy.types.Material,poll=poll_material,description="hotspot material")
+    bpy.types.Scene.duvhotspotscale = bpy.props.FloatProperty (name = "duvhotspotscale",default = 1.0,description = "Hotspotting scale multiplier")
+    bpy.types.Scene.duv_hotspotmaterial = bpy.props.PointerProperty (name="duv_hotspotmaterial",type=bpy.types.Material,poll=poll_material,description="Hotspot material")
     bpy.types.Scene.duv_hotspotuseinset = bpy.props.BoolProperty (name = "duv_hotspotuseinset",default = False,description = "Use inset when hotspotting")
     bpy.types.Scene.hotspotinsetpixels = bpy.props.FloatProperty (name = "hotspot inset pixel amount",default = 1.0,description = "")
     bpy.types.Scene.hotspotinsettexsize = bpy.props.FloatProperty (name = "hotspot texture size",default = 1024.0,description = "")
     bpy.types.Scene.duv_experimentaltools = bpy.props.BoolProperty (name = "duv_experimentaltools",default = False,description = "Show experimental tools")
+    bpy.types.Scene.duv_uv2copy = bpy.props.BoolProperty (name = "duv_uv2copy",default = False,description = "Copy uv2")
+    bpy.types.Scene.duv_hotspot_uv1 = bpy.props.BoolProperty (name = "duv_hotspot_uv1",default = False,description = "Always hotspot UV 1")
+    bpy.types.Scene.duv_hotspot_uv2 = bpy.props.BoolProperty (name = "duv_hotspot_uv2",default = False,description = "Always hotspot UV 2")
+    bpy.types.Scene.duv_boxmap_uv1 = bpy.props.BoolProperty (name = "duv_boxmap_uv1",default = False,description = "Always box map UV 1")
+    bpy.types.Scene.duv_boxmap_uv2 = bpy.props.BoolProperty (name = "duv_boxmap_uv2",default = False,description = "Always box map UV 2")
+    bpy.types.Scene.duv_autoboxmap = bpy.props.BoolProperty (name = "duv_autoboxmap",default = False,description = "Auto apply boxmap after hotspot operation")
+    bpy.types.Scene.duv_trimcap_uv1 = bpy.props.BoolProperty (name = "duv_trimcap_uv1",default = False,description = "Always apply trim/cap to UV 1")
+    bpy.types.Scene.duv_trimcap_uv2 = bpy.props.BoolProperty (name = "duv_trimcap_uv2",default = False,description = "Always apply trim/cap to UV 2")
+    bpy.types.Scene.duv_autoboxmaptrim = bpy.props.BoolProperty (name = "duv_autoboxmaptrim",default = False,description = "Auto apply boxmap after trim/cap operation")
+    bpy.types.Scene.duv_uvtrim_randomshift = bpy.props.BoolProperty (name = "duv_uvtrim_randomshift",default = False,description = "Randomize trim position along tiling axis")
+    bpy.types.Scene.duv_uvtrim_bounds = bpy.props.BoolProperty (name = "duv_uvtrim_bounds",default = False,description = "Scale trim to boundary region")
+    bpy.types.Scene.duv_uvtrim_min = bpy.props.FloatProperty (name = "duv_uvtrim_min",default = 0.0,description = "Boundary start")
+    bpy.types.Scene.duv_uvtrim_max = bpy.props.FloatProperty (name = "duv_uvtrim_max",default = 1.0,description = "Boundary end")
     
 
 def unregister():
