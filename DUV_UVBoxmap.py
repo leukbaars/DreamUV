@@ -29,13 +29,9 @@ def main(context):
 
 
 
-    #obj = bpy.data.objects['cube128']
     obj = context.scene.uv_box
         
     mat = obj.matrix_world
-    #print(mat @ bpy.data.objects['cube128'].bound_box.data.data.vertices[0].co)
-
-    #redo initialization
 
     startloc = mat @ obj.bound_box.data.data.vertices[0].co
 
@@ -47,23 +43,22 @@ def main(context):
     zmax = startloc.z
 
     for v in obj.bound_box.data.data.vertices:
-        #print(v.co)
+
         loc = mat @ v.co
-        #print(loc)
-        #print(" ")
+        
         if loc.x < xmin:
             xmin=loc.x
-        elif loc.x > xmax:
+        elif loc.x >= xmax:
             xmax=loc.x
             
         if loc.y < ymin:
             ymin=loc.y
-        elif loc.y > ymax:
+        elif loc.y >= ymax:
             ymax=loc.y
             
         if loc.z < zmin:
             zmin=loc.z
-        elif loc.z > zmax:
+        elif loc.z >= zmax:
             zmax=loc.z
             
     up = Vector((0, 0, 1)) #  -z axis.
@@ -86,9 +81,22 @@ def main(context):
             m = obj.matrix_world.to_quaternion().to_matrix()
             
             f_world_normal = m @ f.normal
-            #print(degrees(f_world_normal.angle(up)))
+     
+            #gather up, front and right angles
             
-            if degrees(f_world_normal.angle(up)) < 45.0 or degrees(f_world_normal.angle(up)) > 135.0:
+            upangle = degrees(f_world_normal.angle(up))
+            if upangle > 90:
+                upangle = 180 - upangle
+            rightangle = degrees(f_world_normal.angle(right))
+            if rightangle > 90:
+                rightangle = 180 - rightangle
+            frontangle = degrees(f_world_normal.angle(front))
+            if frontangle > 90:
+                frontangle = 180 - frontangle
+            
+            #pick smallest angle
+            
+            if upangle <= rightangle and upangle <= frontangle:
                 for loop in f.loops:
                     vco = loop.vert.co        
                     # Multiply matrix by vertex (see also: https://developer.blender.org/T56276)
@@ -99,8 +107,8 @@ def main(context):
                     loop[uv_layer].uv.y -= ymin
                     loop[uv_layer].uv.x /= (xmax-xmin)
                     loop[uv_layer].uv.y /= (ymax-ymin)
-                        
-            if degrees(f_world_normal.angle(right)) < 45.0 or degrees(f_world_normal.angle(right)) > 135.0:
+            
+            elif rightangle <= upangle and rightangle <= frontangle:
                 for loop in f.loops:
                     vco = loop.vert.co        
                     # Multiply matrix by vertex (see also: https://developer.blender.org/T56276)
@@ -112,7 +120,20 @@ def main(context):
                     loop[uv_layer].uv.x /= (ymax-ymin)
                     loop[uv_layer].uv.y /= (zmax-zmin)
 
-            if degrees(f_world_normal.angle(front)) < 45.0 or degrees(f_world_normal.angle(front)) > 135.0:
+            elif frontangle <= upangle and frontangle <= rightangle:
+                for loop in f.loops:
+                    vco = loop.vert.co        
+                    # Multiply matrix by vertex (see also: https://developer.blender.org/T56276)
+                    loc = mat @ vco
+                    loop[uv_layer].uv.x = loc.x
+                    loop[uv_layer].uv.y = loc.z
+                    loop[uv_layer].uv.x -= xmin
+                    loop[uv_layer].uv.y -= zmin
+                    loop[uv_layer].uv.x /= (xmax-xmin)
+                    loop[uv_layer].uv.y /= (zmax-zmin)
+            
+            #backup uv just in case
+            else:
                 for loop in f.loops:
                     vco = loop.vert.co        
                     # Multiply matrix by vertex (see also: https://developer.blender.org/T56276)
