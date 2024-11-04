@@ -4,6 +4,7 @@ import math
 import random
 from mathutils import Vector
 from . import DUV_Utils
+from bpy.props import EnumProperty, BoolProperty, StringProperty, FloatProperty, IntProperty
 
 
 def main(context):
@@ -487,6 +488,33 @@ class DREAMUV_OT_hotspotter(bpy.types.Operator):
 
     def execute(self, context):
     
+        #make sure selection is active:
+        if context.scene.duv_hotspot_atlas1 == True:
+            context.scene.subrect_atlas = context.scene.subrect_atlas1
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial1
+        if context.scene.duv_hotspot_atlas2 == True:
+            context.scene.subrect_atlas = context.scene.subrect_atlas2
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial2    
+        if context.scene.duv_hotspot_atlas3 == True:
+            context.scene.subrect_atlas = context.scene.subrect_atlas3
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial3
+        if context.scene.duv_hotspot_atlas4 == True:
+            context.scene.subrect_atlas = context.scene.subrect_atlas4
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial4
+        if context.scene.duv_hotspot_atlas5 == True:
+            context.scene.subrect_atlas = context.scene.subrect_atlas5
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial5
+        if context.scene.duv_hotspot_atlas6 == True:
+            context.scene.subrect_atlas = context.scene.subrect_atlas6
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial6
+        if context.scene.duv_hotspot_atlas7 == True:
+            context.scene.subrect_atlas = context.scene.subrect_atlas7
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial7
+        if context.scene.duv_hotspot_atlas8 == True:
+            context.scene.subrect_atlas = context.scene.subrect_atlas8
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial8
+        
+        
         #remember selected uv
         uv_index = bpy.context.view_layer.objects.active.data.uv_layers.active_index
         if context.scene.duv_hotspot_uv1 == True:
@@ -508,3 +536,57 @@ class DREAMUV_OT_hotspotter(bpy.types.Operator):
         return {'FINISHED'}
         
         bpy.ops.object.editmode_toggle() 
+        
+class DREAMUV_OT_pushhotspot(bpy.types.Operator):
+    """Set hotspot settings from list"""
+    bl_idname = "view3d.dreamuv_pushhotspot"
+    bl_label = "Push HotSpot"
+    bl_options = {"UNDO"}
+
+    index : bpy.props.IntProperty()
+
+    def execute(self, context):
+        
+        context.scene.duv_hotspot_atlas1 = False
+        context.scene.duv_hotspot_atlas2 = False
+        context.scene.duv_hotspot_atlas3 = False
+        context.scene.duv_hotspot_atlas4 = False
+        context.scene.duv_hotspot_atlas5 = False
+        context.scene.duv_hotspot_atlas6 = False
+        context.scene.duv_hotspot_atlas7 = False
+        context.scene.duv_hotspot_atlas8 = False
+    
+        if self.index == 1:
+            context.scene.subrect_atlas = context.scene.subrect_atlas1
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial1
+            context.scene.duv_hotspot_atlas1 = True
+        if self.index == 2:
+            context.scene.subrect_atlas = context.scene.subrect_atlas2
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial2
+            context.scene.duv_hotspot_atlas2 = True
+        if self.index == 3:
+            context.scene.subrect_atlas = context.scene.subrect_atlas3
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial3
+            context.scene.duv_hotspot_atlas3 = True
+        if self.index == 4:
+            context.scene.subrect_atlas = context.scene.subrect_atlas4
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial4
+            context.scene.duv_hotspot_atlas4 = True       
+        if self.index == 5:
+            context.scene.subrect_atlas = context.scene.subrect_atlas5
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial5
+            context.scene.duv_hotspot_atlas5 = True
+        if self.index == 6:
+            context.scene.subrect_atlas = context.scene.subrect_atlas6
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial6
+            context.scene.duv_hotspot_atlas6 = True
+        if self.index == 7:
+            context.scene.subrect_atlas = context.scene.subrect_atlas7
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial7
+            context.scene.duv_hotspot_atlas7 = True
+        if self.index == 8:
+            context.scene.subrect_atlas = context.scene.subrect_atlas8
+            context.scene.duv_hotspotmaterial = context.scene.duv_hotspotmaterial8
+            context.scene.duv_hotspot_atlas8 = True
+        
+        return {'FINISHED'}

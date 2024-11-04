@@ -205,15 +205,51 @@ class DREAMUV_PT_uv(bpy.types.Panel):
         box = layout.box()
         col = box.column(align=True)
         col.label(text="HotSpot Tool:")
-        row = col.row(align = True)
-        row.label(text="Atlas Object:")
-        row.prop_search(context.scene, "subrect_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
+        
+        #row.label(text="Atlas Object:")
+        #row.prop_search(context.scene, "subrect_atlas", context.scene, "objects", text="", icon="MOD_MULTIRES")
+        #row = col.row(align = True)
+        
+        col.separator()
+        
+        radiobutton = (
+            context.scene.duv_hotspot_atlas1,
+            context.scene.duv_hotspot_atlas1,
+            context.scene.duv_hotspot_atlas2,
+            context.scene.duv_hotspot_atlas3,
+            context.scene.duv_hotspot_atlas4,
+            context.scene.duv_hotspot_atlas5,
+            context.scene.duv_hotspot_atlas6,
+            context.scene.duv_hotspot_atlas7,
+            context.scene.duv_hotspot_atlas8,
+        )
+        
+        listsize = 1
+        col.prop(context.scene, "atlas_list_size", text="atlas count:")
+        
+        
+        while listsize <= context.scene.atlas_list_size:
+            row = col.row(align = True)      
+            #row.prop(context.scene, "duv_hotspot_atlas1", icon="IPO_SINE", text="")
+            if radiobutton[listsize]: 
+                op = row.operator("view3d.dreamuv_pushhotspot", text="", icon="RADIOBUT_ON")
+            if not radiobutton[listsize]: 
+                op = row.operator("view3d.dreamuv_pushhotspot", text="", icon="RADIOBUT_OFF")
+            op.index = listsize
+            row.prop_search(context.scene, "subrect_atlas"+str(listsize), context.scene, "objects", text="", icon="MOD_MULTIRES")
+            row.prop_search(context.scene, "duv_hotspotmaterial"+str(listsize), bpy.data, "materials", text="")
+            listsize += 1
+                
+        col.separator()
         row = col.row(align = True)
         row.label(text="Atlas Scale:")
         row.prop(context.scene, "duvhotspotscale", text="")
         row = col.row(align = True)
-        row.label(text="Hotspot material:")
-        row.prop_search(context.scene, "duv_hotspotmaterial", bpy.data, "materials", text="")
+        #row.label(text="Hotspot material:")
+        #row.prop_search(context.scene, "duv_hotspotmaterial", bpy.data, "materials", text="")
+        
+        
+        
         row = col.row(align = True)
         row.prop(context.scene, "duv_hotspotuseinset", icon="FULLSCREEN_EXIT", text="inset")
         row.separator()
@@ -356,6 +392,7 @@ classes = (
     DUV_UVProject.DREAMUV_OT_uv_project,
     DUV_UVUnwrap.DREAMUV_OT_uv_unwrap_square,
     DUV_HotSpot.DREAMUV_OT_hotspotter,
+    DUV_HotSpot.DREAMUV_OT_pushhotspot,
     DUV_UVInset.DREAMUV_OT_uv_inset,
     DUV_UVInset.DREAMUV_OT_uv_inset_step,
     DUV_UVTrim.DREAMUV_OT_uv_trim,
@@ -407,6 +444,41 @@ def register():
     bpy.types.Scene.duv_uvtrim_bounds = bpy.props.BoolProperty (name = "duv_uvtrim_bounds",default = False,description = "Scale trim to boundary region")
     bpy.types.Scene.duv_uvtrim_min = bpy.props.FloatProperty (name = "duv_uvtrim_min",default = 0.0,description = "Boundary start")
     bpy.types.Scene.duv_uvtrim_max = bpy.props.FloatProperty (name = "duv_uvtrim_max",default = 1.0,description = "Boundary end")
+    
+    bpy.types.Scene.subrect_atlas1 = bpy.props.PointerProperty (name="atlas1",type=bpy.types.Object,description="atlas1")
+    bpy.types.Scene.subrect_atlas2 = bpy.props.PointerProperty (name="atlas2",type=bpy.types.Object,description="atlas2")
+    bpy.types.Scene.subrect_atlas3 = bpy.props.PointerProperty (name="atlas3",type=bpy.types.Object,description="atlas3")
+    bpy.types.Scene.subrect_atlas4 = bpy.props.PointerProperty (name="atlas4",type=bpy.types.Object,description="atlas4")
+    bpy.types.Scene.subrect_atlas5 = bpy.props.PointerProperty (name="atlas5",type=bpy.types.Object,description="atlas5")
+    bpy.types.Scene.subrect_atlas6 = bpy.props.PointerProperty (name="atlas6",type=bpy.types.Object,description="atlas6")
+    bpy.types.Scene.subrect_atlas7 = bpy.props.PointerProperty (name="atlas7",type=bpy.types.Object,description="atlas7")
+    bpy.types.Scene.subrect_atlas8 = bpy.props.PointerProperty (name="atlas8",type=bpy.types.Object,description="atlas8")
+
+    bpy.types.Scene.duv_hotspotmaterial1 = bpy.props.PointerProperty (name="duv_hotspotmaterial1",type=bpy.types.Material,poll=poll_material,description="Hotspot material 1")
+    bpy.types.Scene.duv_hotspotmaterial2 = bpy.props.PointerProperty (name="duv_hotspotmaterial2",type=bpy.types.Material,poll=poll_material,description="Hotspot material 2")
+    bpy.types.Scene.duv_hotspotmaterial3 = bpy.props.PointerProperty (name="duv_hotspotmaterial3",type=bpy.types.Material,poll=poll_material,description="Hotspot material 3")
+    bpy.types.Scene.duv_hotspotmaterial4 = bpy.props.PointerProperty (name="duv_hotspotmaterial4",type=bpy.types.Material,poll=poll_material,description="Hotspot material 4")
+    bpy.types.Scene.duv_hotspotmaterial5 = bpy.props.PointerProperty (name="duv_hotspotmaterial5",type=bpy.types.Material,poll=poll_material,description="Hotspot material 5")
+    bpy.types.Scene.duv_hotspotmaterial6 = bpy.props.PointerProperty (name="duv_hotspotmaterial6",type=bpy.types.Material,poll=poll_material,description="Hotspot material 6")
+    bpy.types.Scene.duv_hotspotmaterial7 = bpy.props.PointerProperty (name="duv_hotspotmaterial7",type=bpy.types.Material,poll=poll_material,description="Hotspot material 7")
+    bpy.types.Scene.duv_hotspotmaterial8 = bpy.props.PointerProperty (name="duv_hotspotmaterial8",type=bpy.types.Material,poll=poll_material,description="Hotspot material 8")
+    
+    bpy.types.Scene.duv_hotspot_atlas1 = bpy.props.BoolProperty (name = "duv_hotspot_atlas1",default = True,description = "duv_hotspot_atlas1")
+    bpy.types.Scene.duv_hotspot_atlas2 = bpy.props.BoolProperty (name = "duv_hotspot_atlas2",default = False,description = "duv_hotspot_atlas2")
+    bpy.types.Scene.duv_hotspot_atlas3 = bpy.props.BoolProperty (name = "duv_hotspot_atlas3",default = False,description = "duv_hotspot_atlas3")
+    bpy.types.Scene.duv_hotspot_atlas4 = bpy.props.BoolProperty (name = "duv_hotspot_atlas4",default = False,description = "duv_hotspot_atlas4")
+    bpy.types.Scene.duv_hotspot_atlas5 = bpy.props.BoolProperty (name = "duv_hotspot_atlas5",default = False,description = "duv_hotspot_atlas5")
+    bpy.types.Scene.duv_hotspot_atlas6 = bpy.props.BoolProperty (name = "duv_hotspot_atlas6",default = False,description = "duv_hotspot_atlas6")
+    bpy.types.Scene.duv_hotspot_atlas7 = bpy.props.BoolProperty (name = "duv_hotspot_atlas7",default = False,description = "duv_hotspot_atlas7")
+    bpy.types.Scene.duv_hotspot_atlas8 = bpy.props.BoolProperty (name = "duv_hotspot_atlas8",default = False,description = "duv_hotspot_atlas8")
+    
+    bpy.types.Scene.atlas_list_size = bpy.props.IntProperty (
+        name = "atlas_list_size",
+        default = 1,
+        min = 1,
+        max = 8,
+        description = "atlas_list_size",
+        )
     
 
 def unregister():
