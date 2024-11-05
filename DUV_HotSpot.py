@@ -243,8 +243,9 @@ def main(context):
 
         if aspect > 1:
             aspect = round(aspect)
-        else:
-            aspect = 1/(round(1/aspect))
+        else: 
+            if aspect > 0.0001: #prevent divide by 0
+                aspect = 1/(round(1/aspect))
 
         #ASPECT LOWER THAN 1.0 = TALL
         #ASPECT HIGHER THAN 1.0 = WIDE
