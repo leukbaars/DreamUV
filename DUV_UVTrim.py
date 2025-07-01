@@ -77,8 +77,8 @@ def uv_trim(context):
     print(atlas)
     #check if horizontal or vertical, and make trimsheet
 
-    if context.scene.trim_index > ( len(atlas) - 1.0 ):
-        context.scene.trim_index = 0.0
+    if context.scene.trim_index > ( len(atlas) - 1 ):
+        context.scene.trim_index = 0
 
 
     #MAKE DUPLICATE AND SPLIT EDGES
@@ -364,8 +364,8 @@ def uv_cap(context):
     print("atlas:")
     print(atlas)
     
-    if context.scene.cap_index > ( len(atlas) - 1.0 ):
-        context.scene.cap_index = 0.0
+    if context.scene.cap_index > ( len(atlas) - 1 ):
+        context.scene.cap_index = 0
     
     #check if horizontal or vertical, and make trimsheet
 
