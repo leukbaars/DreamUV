@@ -52,6 +52,8 @@ if 'bpy' in locals():
     importlib.reload(DUV_ApplyMaterial)
     importlib.reload(DUV_UVBoxmap)
 
+addon_keymaps = []
+
 class DUVUVToolsPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
 
@@ -410,6 +412,19 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.addon
+    if kc:
+        km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
+
+        # Alt+Shift+H for HotSpot
+        kmi = km.keymap_items.new('view3d.dreamuv_hotspotter', type='H', value='PRESS', alt=True, shift=True)
+        addon_keymaps.append((km, kmi))
+
+        # Alt+Shift+T for Trim
+        kmi = km.keymap_items.new('view3d.dreamuv_uvtrim', type='T', value='PRESS', alt=True, shift=True)
+        addon_keymaps.append((km, kmi))
+
     bpy.types.Scene.subrect_atlas = bpy.props.PointerProperty (name="atlas",type=bpy.types.Object,description="atlas object")
     bpy.types.Scene.uv_box = bpy.props.PointerProperty (name="uvbox",type=bpy.types.Object,description="uv box")
     bpy.types.Scene.trim_atlas = bpy.props.PointerProperty (name="trim_atlas",type=bpy.types.Object,description="trim atlas")
@@ -482,6 +497,10 @@ def register():
     
 
 def unregister():
+    for km, kmi in addon_keymaps:
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
+
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
